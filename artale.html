@@ -1,0 +1,2560 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artale 技能模擬器 | 冒險家 & 皇家騎士團改版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #4a2d1d;
+      --ink-soft: #5d4037;
+      --brown: #795548;
+      --brown-deep: #4e342e;
+      --line: #bcaaa4;
+      --paper: rgba(252, 242, 223, 0.62);
+      --card: rgba(255, 255, 255, 0.65);
+      --asset: https://jamox80.github.io/maplestory-skill-simulator;
+    }
+    * { box-sizing: border-box; }
+    .hidden { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #333;
+      font-family: "Noto Sans TC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f0e6d6;
+      background-image:
+        url("https://jamox80.github.io/maplestory-skill-simulator/ui/parchment_texture-top.png"),
+        url("https://jamox80.github.io/maplestory-skill-simulator/ui/parchment_texture-bottom.png"),
+        url("https://jamox80.github.io/maplestory-skill-simulator/ui/parchment_texture-middle.png");
+      background-repeat: no-repeat, no-repeat, repeat-y;
+      background-position: center top, center bottom, center top;
+      background-size: 100% auto, 100% auto, 100% auto;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      right: 6%;
+      bottom: 24px;
+      width: 280px;
+      height: 280px;
+      background-image: var(--emblem-bg-url);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      opacity: 0.28;
+      pointer-events: none;
+      z-index: 0;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(215, 204, 200, 0.5); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #795548; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #5d4037; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, 94%);
+      margin: 0 auto;
+      padding: 28px 0 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .site-title {
+      margin: 36px 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      font-family: "Cinzel Decorative", "Noto Serif TC", serif;
+      font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--ink);
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    .site-title img {
+      width: 92px;
+      height: 92px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+    .paper-section,
+    .skill-tree,
+    .summary {
+      background-color: var(--paper);
+      border: 3px solid var(--brown);
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28), inset 0 0 0 6px rgba(181, 158, 145, 0.4);
+    }
+    .paper-section { width: 100%; padding: 22px 22px 26px; margin-bottom: 22px; }
+    .section-heading,
+    .skill-tree h2,
+    .summary h2 {
+      margin: 0 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--brown);
+      font-family: "Cinzel Decorative", "Noto Serif TC", serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--brown);
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .section-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .faction-tab {
+      border: 1px solid var(--brown);
+      background: rgba(255, 255, 255, 0.45);
+      color: var(--ink-soft);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .faction-tab.is-active {
+      background: #795548;
+      color: #fff;
+    }
+    .new-pill {
+      margin-left: 4px;
+      padding: 0 5px;
+      border-radius: 4px;
+      background: #1976d2;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+    }
+    .job-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+    }
+    .job-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.4);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 12px 8px 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      font-family: inherit;
+    }
+    .job-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); }
+    .job-card.is-selected { border-color: #795548; background: rgba(255, 248, 235, 0.85); }
+    .job-card img, .job-emoji {
+      width: 108px;
+      height: 108px;
+      margin-bottom: 8px;
+      object-fit: contain;
+    }
+    .job-emoji {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #fff8ea, #e7d3b4);
+      border: 2px solid #c4a484;
+    }
+    .job-card strong { font-size: 1.02rem; }
+    .job-card small { color: var(--ink-soft); font-size: 0.75rem; }
+
+    .controls {
+      width: 100%;
+      margin-bottom: 22px;
+      padding: 16px 22px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px 14px;
+      color: var(--ink-soft);
+    }
+    .current-job {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+    }
+    #selected-job-icon {
+      width: 54px;
+      height: 54px;
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    #selected-job-icon img { width: 54px; height: 54px; object-fit: contain; }
+    #selected-job-name {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.15rem;
+      color: var(--ink);
+    }
+    #selected-job-sub, #current-faction-badge {
+      display: inline-block;
+      margin-right: 6px;
+      font-size: 0.75rem;
+      color: var(--brown);
+      font-weight: 700;
+    }
+    #selected-job-desc { margin: 2px 0 0; font-size: 0.78rem; color: var(--ink-soft); max-width: 280px; }
+    .controls label { font-size: 1rem; color: var(--ink-soft); font-weight: 700; }
+    .controls input[type="number"],
+    .search-input,
+    .field-input {
+      padding: 8px 12px;
+      border: 2px solid var(--brown);
+      border-radius: 8px;
+      background: #fefefe8c;
+      color: var(--brown-deep);
+      font-family: inherit;
+      font-weight: 700;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+    .controls input[type="number"] { width: 76px; text-align: center; font-size: 1.05rem; }
+    .controls input[type="number"]:focus,
+    .search-input:focus,
+    .field-input:focus { outline: none; border-color: #a1887f; }
+    .check-line { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 500; }
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      color: #fff;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    }
+    .btn-red { background: #d32f2f; }
+    .btn-red:hover { background: #c62828; }
+    .btn-blue { background: #1976d2; }
+    .btn-blue:hover { background: #1565c0; }
+    .btn-green { background: #388e3c; }
+    .btn-green:hover { background: #2e7d32; }
+    .btn-brown { background: #795548; }
+    .btn-brown:hover { background: #5d4037; }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--brown-deep);
+      border: 1px solid var(--brown);
+    }
+    .preset-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; width: 100%; }
+    #preset-buttons { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .preset-btn {
+      border: 1px solid var(--brown);
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--brown-deep);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .preset-btn:hover { background: #efe6d6; }
+
+    .note-banner {
+      width: 100%;
+      margin-bottom: 22px;
+      padding: 18px 20px;
+      background: rgba(253, 249, 241, 0.95);
+      border: 2px solid var(--brown);
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .note-banner h4 {
+      margin: 0 0 6px;
+      font-family: "Noto Serif TC", serif;
+      color: var(--ink);
+    }
+    .note-banner p { margin: 0; color: var(--ink-soft); }
+    .note-banner button { border: none; background: transparent; color: var(--brown); font-size: 18px; cursor: pointer; }
+
+    .workspace {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 22px;
+    }
+    .skill-tree { flex: 1; min-width: 0; padding: 28px 26px 32px; }
+    .summary {
+      width: 250px;
+      flex: none;
+      position: sticky;
+      top: 18px;
+      padding: 22px 18px 26px;
+    }
+    .tier-filter { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px; }
+    .tier-tab {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--ink-soft);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+    }
+    .tier-tab.is-active { background: #795548; color: #fff; border-color: #795548; }
+    .search-wrap { display: flex; justify-content: center; margin: 8px 0 18px; }
+    .search-input { width: min(360px, 100%); font-weight: 500; }
+    .tier-block { margin-bottom: 8px; }
+    .tier-block h2 { margin-top: 8px; }
+    .skill-count { display: none; }
+
+    .skill-item {
+      margin-bottom: 14px;
+      padding: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transform: perspective(800px) rotateX(2deg);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .skill-item:hover {
+      transform: perspective(800px) rotateX(0deg) translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    }
+    .skill-item.is-max { border-color: #8d6e63; }
+    .skill-header { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .skill-icon {
+      width: 40px;
+      height: 40px;
+      flex: none;
+      display: block;
+      object-fit: contain;
+    }
+    .skill-icon-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      background: #f7f1e6;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .skill-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--brown-deep);
+    }
+    .skill-type {
+      flex: none;
+      font-size: 0.72rem;
+      color: var(--brown);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 6px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .skill-level-controls { display: flex; align-items: center; gap: 5px; flex: none; }
+    .skill-level-controls button {
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      background: #a1887f;
+      color: #f5f5f5;
+      border: 1px solid #795548;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .skill-level-controls button:hover:not(:disabled) { background: #8d6e63; }
+    .skill-level-controls button:disabled { background: #d7ccc8; color: #a1887f; border-color: #bcaaa4; cursor: not-allowed; }
+    .skill-level-controls .max-button { background: #4caf50; border-color: #388e3c; }
+    .skill-level-controls .max-button:hover:not(:disabled) { background: #388e3c; }
+    .skill-level-controls .zero-button { padding: 7px 8px; font-size: 0.78rem; }
+    .skill-level-input {
+      width: 46px;
+      text-align: center;
+      color: #6d4c41;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #f5f5f5;
+      padding: 6px 0;
+      font-family: inherit;
+    }
+    .skill-max { color: #6d4c41; font-weight: 700; min-width: 36px; }
+    .skill-prerequisites {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #d7ccc8;
+      font-size: 0.85rem;
+      color: #6d4c41;
+    }
+    .prereq-met { color: #388e3c; font-weight: 700; }
+    .prereq-unmet { color: #d32f2f; font-weight: 700; }
+    .skill-description-area {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(245, 245, 245, 0.9);
+      border-top: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 0.92rem;
+    }
+    .current-level-effect { color: #1976d2; }
+    .next-level-effect { margin-top: 6px; color: #5d4037; }
+
+    .summary-lines { display: flex; flex-direction: column; gap: 12px; color: var(--brown-deep); font-size: 0.95rem; }
+    .summary-lines strong { font-weight: 700; }
+    .sp-row { padding-top: 8px; border-top: 1px solid #d7ccc8; }
+    .sp-row .neg { color: #d32f2f; font-weight: 700; }
+    .sp-row .ok { color: #388e3c; font-weight: 700; }
+    .empty-skills {
+      padding: 28px 12px;
+      text-align: center;
+      color: var(--ink-soft);
+      background: rgba(255, 255, 255, 0.45);
+      border-radius: 8px;
+    }
+
+    .site-footer {
+      width: 100%;
+      margin-top: 28px;
+      text-align: center;
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+    }
+    .site-footer code { color: var(--brown-deep); }
+
+    .toast-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: min(360px, calc(100% - 24px));
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: rgba(253, 249, 241, 0.97);
+      border: 2px solid var(--brown);
+      color: var(--brown-deep);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      font-size: 0.9rem;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    .toast-success { border-color: #388e3c; }
+    .toast-warning { border-color: #ef6c00; }
+    .toast-error { border-color: #d32f2f; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(62, 39, 24, 0.55);
+    }
+    .modal.hidden { display: none; }
+    .modal-card {
+      width: min(880px, 100%);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      background: #fbf6ea;
+      border: 3px solid var(--brown);
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      color: var(--brown-deep);
+    }
+    .modal-card.narrow { width: min(680px, 100%); }
+    .modal-head, .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid #d7ccc8;
+    }
+    .modal-foot { border-bottom: none; border-top: 1px solid #d7ccc8; }
+    .modal-head h3 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      color: var(--ink);
+    }
+    .modal-head p { margin: 4px 0 0; font-size: 0.82rem; color: var(--ink-soft); }
+    .icon-x {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: #db4509;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .modal-body { padding: 16px 18px; overflow: auto; }
+    #db-json-editor {
+      width: 100%;
+      min-height: 320px;
+      resize: none;
+      border: 2px solid var(--brown);
+      border-radius: 8px;
+      background: #fffdf8;
+      color: #3e2723;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      padding: 12px;
+    }
+    .log-item { margin: 0 0 16px; padding-left: 12px; border-left: 4px solid #a1887f; }
+    .log-item h4 { margin: 0 0 6px; color: var(--ink); }
+    .log-item ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
+
+    @media (max-width: 860px) {
+      .job-grid { grid-template-columns: repeat(3, 1fr); }
+      .workspace { flex-direction: column; }
+      .summary { width: 100%; position: static; }
+      .job-card img, .job-emoji { width: 84px; height: 84px; }
+      .skill-header { flex-wrap: wrap; }
+      .skill-level-controls { width: 100%; justify-content: flex-end; }
+    }
+    @media (max-width: 640px) {
+      .job-grid { grid-template-columns: repeat(2, 1fr); }
+      .site-title { flex-direction: column; gap: 8px; margin-top: 12px; }
+      .site-title img { width: 72px; height: 72px; }
+      body::before { width: 160px; height: 160px; opacity: 0.18; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+    <h1 class="site-title">
+      <img src="https://jamox80.github.io/maplestory-skill-simulator/ui/title-icon.png" alt="">
+      <span>Artale技能模擬器</span>
+    </h1>
+
+    <section class="paper-section">
+      <h2 class="section-heading">選擇職業</h2>
+      <div class="section-tools">
+        <span id="current-faction-badge">冒險家 (Lv.200 上限)</span>
+        <button data-faction="all" class="faction-tab is-active">全部職業 (17)</button>
+        <button data-faction="adventurer" class="faction-tab">冒險家 (12)</button>
+        <button data-faction="cygnus" class="faction-tab">
+          皇家騎士團 (5)<span class="new-pill">NEW</span>
+            </button>
+          </div>
+      <div id="job-grid" class="job-grid"></div>
+    </section>
+
+    <section class="controls">
+      <div class="current-job">
+        <div id="selected-job-icon">🔥</div>
+        <div>
+          <h3 id="selected-job-name">火毒大魔導</h3>
+          <div>
+            <span id="selected-job-sub">法師系</span>
+          </div>
+          <p id="selected-job-desc">高爆發持續毒傷與大範圍火屬性魔法輸出。</p>
+          </div>
+        </div>
+      <label for="char-level-input">當前等級 <span id="level-cap-hint">(上限 Lv.200)</span></label>
+      <button id="btn-lv-minus" class="btn btn-brown" type="button">-</button>
+      <input id="char-level-input" type="number" min="10" max="200" value="200">
+      <button id="btn-lv-plus" class="btn btn-brown" type="button">+</button>
+      <button id="btn-lv-max" class="btn btn-ghost" type="button">滿等</button>
+      <label class="check-line">
+        <input id="toggle-cross-tier" type="checkbox" checked>
+        允許高轉 SP 補低轉技能
+      </label>
+      <button id="btn-reset-all" class="btn btn-red" type="button">重置</button>
+      <button id="btn-share" class="btn btn-blue" type="button">分享</button>
+      <button id="btn-save-local" class="btn btn-green" type="button">儲存配點</button>
+      <button id="btn-load-local" class="btn btn-ghost" type="button">讀取存檔</button>
+      <button id="btn-open-changelog" class="btn btn-ghost" type="button">更新日誌</button>
+      <button id="btn-open-db" class="btn btn-ghost" type="button" title="檢視或測試修改技能數據">技能資料庫</button>
+      <div class="preset-row">
+        <span>推薦配點</span>
+        <div id="preset-buttons"></div>
+      </div>
+    </section>
+
+    <div id="preset-note-banner" class="note-banner hidden">
+        <div>
+        <h4 id="preset-note-title">推薦配點說明</h4>
+        <p id="preset-note-text"></p>
+        </div>
+      <button id="btn-close-preset-note" type="button">✕</button>
+    </div>
+
+    <div class="workspace">
+      <section class="skill-tree">
+        <div id="tier-tabs" class="tier-filter"></div>
+        <div class="search-wrap">
+          <input id="skill-search" class="search-input" type="text" placeholder="搜尋技能名稱或效果...">
+        </div>
+        <div id="skills-container"></div>
+      </section>
+      <aside class="summary">
+        <h2>點數總結</h2>
+        <div id="total-sp-summary" class="summary-lines">總已用 0 / 總可用 0</div>
+        <div id="tier-sp-cards" class="summary-lines"></div>
+      </aside>
+      </div>
+
+    <footer class="site-footer">
+      <p>Artale 技能模擬器 — 冒險家與皇家騎士團皆為 1～4 轉，騎士團上限 200 等。</p>
+      <p>可編輯檔案內 <code>SKILL_DATABASE</code> 以更新技能係數。</p>
+    </footer>
+      </div>
+
+  <div id="toast-container" class="toast-stack"></div>
+
+  <div id="modal-db" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3>技能資料庫 (SKILL_DATABASE)</h3>
+          <p>可以複製此 JSON 更新程式碼，或直接修改數值後按「套用測試」。</p>
+        </div>
+        <button id="btn-close-db" class="icon-x" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="db-json-editor"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button id="btn-copy-db" class="btn btn-brown" type="button">複製完整 JSON</button>
+        <button id="btn-apply-db" class="btn btn-green" type="button">套用測試修改</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-changelog" class="modal hidden">
+    <div class="modal-card narrow">
+      <div class="modal-head">
+        <h3>改版更新日誌</h3>
+        <button id="btn-close-changelog" class="icon-x" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="log-item">
+          <h4>v2.0 皇家騎士團改版</h4>
+          <ul>
+            <li><strong>新增皇家騎士團五大職業：</strong>聖魂劍士、烈焰巫師、破風使者、暗夜行者、閃雷悍將。五大職業皆為 1～4 轉，上限 200 等。</li>
+            <li><strong>專屬等級與 SP 規則：</strong>五大職業上限 Lv.200、1～4 轉。各轉點數依該等級區間每等 3 點計算。</li>
+            <li><strong>架構重構與 JSON 擴充介面：</strong>將所有技能係數模組化至 <code>SKILL_DATABASE</code>，內建瀏覽器即時 JSON 編輯器。</li>
+          </ul>
+        </div>
+        <div class="log-item">
+          <h4>v1.0 冒險家全職業基礎版</h4>
+          <ul>
+            <li>收錄冒險家 12 職業（主教、火毒、冰雷、英雄、聖騎士、黑騎士、箭神、神射手、暗影神偷、夜使者、拳霸、槍神）1～4 轉技能。</li>
+            <li>支援 URL 網址分享配點、推薦配點一鍵套用與前置技能防呆驗證。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * 【Artale 技能模擬器核心資料庫 - SKILL_DATABASE】
+     * 
+     * 未來改版更新指南：
+     * 1. 若要修改技能上限或數值：直接調整該技能的 `maxLv` 與 `desc(lv)` 計算公式即可。
+     * 2. 若要調整前置條件：修改 `req: { skillId: 需要等級 }`。
+     * 3. 轉職階層代碼說明：
+     *    - 冒險家 (faction: 'adventurer', maxLevel: 200): tier 1 (一轉), 2 (二轉), 3 (三轉), 4 (四轉)
+     *    - 皇家騎士團 (faction: 'cygnus', maxLevel: 200): tier 1 (一轉), 2 (二轉), 3 (三轉), 4 (四轉)
+     * ============================================================================
+     */
+    let SKILL_DATABASE = {
+      // ==================== 皇家騎士團 (NEW) ====================
+      dawn_warrior: {
+        id: 'dawn_warrior',
+        name: '聖魂劍士',
+        faction: 'cygnus',
+        category: '騎士團・戰士',
+        icon: '☀️',
+        maxLevel: 200,
+        desc: '可成長至 200 等的騎士團劍士。以靈魂之力與聖屬性劍術戰鬥，四轉再強化靈魂突刺與英勇狂斬。',
+        tiers: [
+          { tier: 1, name: '一轉・聖魂見習' },
+          { tier: 2, name: '二轉・聖魂劍士' },
+          { tier: 3, name: '三轉・聖魂劍士' },
+          { tier: 4, name: '四轉・聖魂劍士' },
+        ],
+        presets: [
+          {
+            name: '200等 靈魂劍術練功型',
+            level: 200,
+            note: '一轉點滿生命淨化、生命擴展與魔天一擊；二轉點滿精準之劍、終極攻擊與靈魂之刃；三轉主攻靈魂鬥氣、靈魂斬與進階靈魂；四轉靈魂突刺與英勇狂斬。每一轉的點數都會先點完，才點下一轉。',
+            skills: {
+              dw_hp_rec: 16, dw_hp_boost: 10, dw_power: 20, dw_slash: 10, dw_soul: 5, dw_mastery: 20, dw_booster: 20, dw_final: 30, dw_guard: 20, dw_blade: 30, dw_rush: 1, dw_mp_rec: 20, dw_train: 20, dw_fusion: 20, dw_adv_soul: 30, dw_combo: 30, dw_cut: 30, dw_holy: 1, dw_cygnus: 30, dw_stance: 30, dw_echo: 30, dw_reflect: 30, dw_driver: 30, dw_brave: 30, dw_soul_sword: 30, dw_hero: 1
+            }
+          }
+        ],
+        skills: [
+          // 一轉
+          { id: 'dw_hp_rec', tier: 1, name: '生命淨化', type: '被動', icon: '💚', maxLv: 16, desc: (lv) => `自我恢復時能回復更多的 HP。` },
+          { id: 'dw_hp_boost', tier: 1, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, req: { dw_hp_rec: 5 }, desc: (lv) => `升級時額外增加的最大 HP 提高。` },
+          { id: 'dw_soul', tier: 1, name: '靈魂', type: '召喚', icon: '✨', maxLv: 20, desc: (lv) => `召喚靈魂精靈，以聖屬性攻擊周圍最多 3 名敵人，基礎攻擊力 ${lvSpan(lv, 20, 21, 40)}，持續 ${lvSpan(lv, 20, 158, 300)} 秒，物魔防禦 +${lv <= 5 ? 10 : lv <= 10 ? 15 : lv <= 15 ? 20 : 25}。` },
+          { id: 'dw_iron', tier: 1, name: '自身強化', type: '輔助', icon: '🛡️', maxLv: 20, desc: (lv) => `物理防禦力 +${lv * 2}，移動速度 +${Math.ceil(lv / 2)}，持續 ${lv * 15} 秒。` },
+          { id: 'dw_power', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `消耗 MP，對單一敵人造成 ${lvSpan(lv, 20, 165, 260)}% 傷害。` },
+          { id: 'dw_slash', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, req: { dw_power: 1 }, desc: (lv) => `消耗 HP 與 MP，攻擊周圍最多 6 名敵人，傷害 ${lvSpan(lv, 20, 72, 130)}%。` },
+          // 二轉
+          { id: 'dw_mastery', tier: 2, name: '精準之劍', type: '被動', icon: '🗡️', maxLv: 20, desc: (lv) => `單手劍與雙手劍的熟練度與命中率上升。` },
+          { id: 'dw_booster', tier: 2, name: '快速之劍', type: '輔助', icon: '⚡', maxLv: 20, req: { dw_mastery: 5 }, desc: (lv) => `劍的攻擊速度 +1 階段，持續 ${lvSpan(lv, 20, 15, 300)} 秒。僅限單手劍或雙手劍。` },
+          { id: 'dw_final', tier: 2, name: '終極攻擊', type: '輔助', icon: '💥', maxLv: 30, req: { dw_mastery: 3 }, desc: (lv) => `使用魔天一擊或劍氣縱橫時，${lvSpan(lv, 30, 2, 60)}% 機率追加攻擊。魔天一擊追加 ${lvSpan(lv, 30, 105, 250)}%，劍氣縱橫追加 ${lvSpan(lv, 30, 63, 150)}%。持續 ${lvSpan(lv, 30, 155, 300)} 秒。` },
+          { id: 'dw_guard', tier: 2, name: '靈魂守護者', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `${lvSpan(lv, 20, 1, 10)}% 傷害改由 MP 承受，持續 ${lvSpan(lv, 20, 47, 300)} 秒。MP 為 0 時改扣 HP。` },
+          { id: 'dw_blade', tier: 2, name: '靈魂之刃', type: '主動', icon: '🌟', maxLv: 30, desc: (lv) => `將靈魂化為劍氣，傷害 ${lvSpan(lv, 30, 95, 180)}%，最多攻擊 ${lv <= 10 ? 3 : lv <= 20 ? 4 : 5} 名敵人。` },
+          { id: 'dw_rush', tier: 2, name: '靈魂迅移', type: '主動', icon: '💨', maxLv: 10, desc: (lv) => `借助靈魂之力快速向前移動，可在空中再次躍進。` },
+          // 三轉
+          { id: 'dw_mp_rec', tier: 3, name: '魔力恢復', type: '被動', icon: '💧', maxLv: 20, desc: (lv) => `每 10 秒額外恢復 MP +${lvSpan(lv, 20, 2, 30)}。` },
+          { id: 'dw_train', tier: 3, name: '體能訓練', type: '被動', icon: '💪', maxLv: 20, desc: (lv) => `物理防禦力永久 +${lvSpan(lv, 20, 12, 70)}。` },
+          { id: 'dw_fusion', tier: 3, name: '靈體同化', type: '被動', icon: '🕊️', maxLv: 20, req: { dw_guard: 20 }, desc: (lv) => `靈魂守護者以 MP 代受的傷害再 +${lvSpan(lv, 20, 1, 10)}%，該次 MP 消耗降低 ${lvSpan(lv, 20, 10, 50)}%。` },
+          { id: 'dw_adv_soul', tier: 3, name: '進階靈魂', type: '輔助', icon: '👑', maxLv: 30, desc: (lv) => `消耗召喚石 1 個，改為與靈魂配合作戰。${lvSpan(lv, 30, 10, 70)}% 機率追加攻擊，傷害 ${lvSpan(lv, 30, 45, 75)}%。對 Boss 不會發動。` },
+          { id: 'dw_combo', tier: 3, name: '靈魂鬥氣', type: '輔助', icon: '🔆', maxLv: 30, desc: (lv) => `每次攻擊累積鬥氣，每顆傷害 +${lvSpan(lv, 30, 1, 20)}%，最多 ${lv <= 8 ? 1 : lv <= 22 ? 2 : 3} 顆。持續 ${lvSpan(lv, 30, 120, 300)} 秒。` },
+          { id: 'dw_cut', tier: 3, name: '靈魂斬', type: '主動', icon: '⚔️', maxLv: 30, desc: (lv) => `攻擊 ${lv <= 15 ? 1 : 2} 名敵人 2 次，每次傷害 ${lvSpan(lv, 30, 88, 170)}%。` },
+          { id: 'dw_holy', tier: 3, name: '靈魂屬性', type: '輔助', icon: '✝️', maxLv: 20, desc: (lv) => `${lvSpan(lv, 20, 110, 300)} 秒內，劍的所有攻擊附加聖屬性，傷害 ${lvSpan(lv, 20, 101, 120)}%。` },
+          // 四轉
+          { id: 'dw_cygnus', tier: 4, name: '西格諾斯騎士', type: '輔助', icon: '👑', maxLv: 30, desc: (lv) => `女皇的祝福。所有能力值 +${Math.round(lv * 15 / 30)}%，持續 ${lv * 30} 秒。` },
+          { id: 'dw_stance', tier: 4, name: '格擋', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 35, 100)}% 機率不被擊退。滿級持續 300 秒。` },
+          { id: 'dw_echo', tier: 4, name: '靈魂迴響', type: '被動', icon: '🌀', maxLv: 30, req: { dw_adv_soul: 10 }, desc: (lv) => `附近怪物被擊倒時累積迴響，每層所有攻擊傷害 +1%，最多 ${lvSpan(lv, 30, 6, 20)} 層，每層持續 5 秒。` },
+          { id: 'dw_reflect', tier: 4, name: '守護者之甲', type: '被動', icon: '🪞', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 31, 60)}% 機率反彈所受魔法傷害的 ${lvSpan(lv, 30, 55, 200)}%。一次最多反射敵方最大 HP 的一定比例。` },
+          { id: 'dw_driver', tier: 4, name: '靈魂突刺', type: '主動', icon: '☀️', maxLv: 30, desc: (lv) => `攻擊最多 ${lv <= 5 ? 3 : lv <= 10 ? 4 : lv <= 15 ? 5 : lv <= 20 ? 6 : lv <= 25 ? 7 : 8} 名敵人 4 次，每次傷害 ${lvSpan(lv, 30, 88, 175)}%。` },
+          { id: 'dw_brave', tier: 4, name: '英勇狂斬', type: '主動', icon: '💢', maxLv: 30, desc: (lv) => `對前方 1 名敵人攻擊 3 次，每次傷害 ${lvSpan(lv, 30, 116, 160)}%。` },
+          { id: 'dw_soul_sword', tier: 4, name: '魂之劍', type: '輔助', icon: '🗡️', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 40, 300)} 秒內，周圍隊員的聖屬性攻擊 +${lvSpan(lv, 30, 1, 20)}%。` },
+          { id: 'dw_hero', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: (lv) => `解除特定異常狀態，等級越高可解除的種類越多。冷卻 10 分鐘。` },
+        ]
+      },
+
+      blaze_wizard: {
+        id: 'blaze_wizard',
+        name: '烈焰巫師',
+        faction: 'cygnus',
+        category: '騎士團・法師',
+        icon: '🔥',
+        maxLevel: 200,
+        desc: '可成長至 200 等的騎士團法師。以燃燒與火牢術屏障清怪，四轉再強化火幕、火流星與烈焰水靈。',
+        tiers: [
+          { tier: 1, name: '一轉・烈焰見習' },
+          { tier: 2, name: '二轉・烈焰巫師' },
+          { tier: 3, name: '三轉・熾烈巫師' },
+          { tier: 4, name: '四轉・烈焰巫師' }
+        ],
+        presets: [
+          {
+            name: '200等 火牢屏障練功型',
+            level: 200,
+            note: '一轉點滿魔力淨化、魔力擴展與火牢術；二轉點滿烈焰智慧、烈焰箭、火柱與極速詠唱；三轉主攻火牢術屏障與火焰吐息；四轉火幕、火流星與烈焰水靈。每一轉的點數都會先點完，才點下一轉。',
+            skills: {
+              bw_mp_rec: 16, bw_mp_boost: 10, bw_magic_guard: 5, bw_flame_orb: 20, bw_magic_claw: 10,
+              bw_flame_wisdom: 20, bw_meditation: 20, bw_element_reset: 1, bw_teleport: 20, bw_flame_arrow: 20, bw_fire_pillar: 20, bw_spell_booster: 20,
+              bw_flame_mastery: 20, bw_flame_resist: 10, bw_element_amp: 30, bw_flame_absorb: 11, bw_seal: 20, bw_flame_barrier: 30, bw_flame_breath: 30,
+              bw_cygnus: 30, bw_flame_truth: 20, bw_fire_walk: 30, bw_fire_book: 30, bw_meteor: 30, bw_fire_storm: 30, bw_fire_curtain: 30, bw_flame_sprite: 30, bw_hero_will: 1
+            }
+          }
+        ],
+        skills: [
+          // 一轉
+          { id: 'bw_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
+          { id: 'bw_mp_boost', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { bw_mp_rec: 5 }, desc: (lv) => `升級時額外增加最大 MP +${lv * 2}。` },
+          { id: 'bw_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `${lv * 30} 秒內，受到的部分傷害改由 MP 承受；MP 為 0 時改扣 HP。` },
+          { id: 'bw_magic_armor', tier: 1, name: '魔力之盾', type: '輔助', icon: '🛡️', maxLv: 20, req: { bw_magic_guard: 3 }, desc: (lv) => `物理防禦力 +${lv * 2}。` },
+          { id: 'bw_flame_orb', tier: 1, name: '火牢術', type: '召喚', icon: '🔥', maxLv: 20, desc: (lv) => {
+            const atk = (10 + (lv - 1) * (10 / 19)).toFixed(1);
+            const dur = Math.round(158 + (lv - 1) * (142 / 19));
+            const def = lv <= 5 ? 10 : lv <= 10 ? 15 : lv <= 15 ? 20 : 25;
+            const burn = Math.round(40 + (lv - 1) * (40 / 19));
+            const burnSec = Math.round(11 + (lv - 1) * (9 / 19));
+            return `召喚火之精靈，最多攻擊 3 名敵人，基礎攻擊力 ${atk}，持續 ${dur} 秒，物魔防禦 +${def}。已學烈焰智慧時 ${burn}% 機率燃燒 ${burnSec} 秒。滿級熟練度 60%。`;
+          } },
+          { id: 'bw_magic_claw', tier: 1, name: '魔力爪', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => {
+            const atk = (5.5 + (lv - 1) * (14.5 / 19)).toFixed(1);
+            const burn = Math.round(40 + (lv - 1) * (40 / 19));
+            const burnSec = Math.round(11 + (lv - 1) * (9 / 19));
+            return `攻擊最多 2 名敵人，各 2 次，每次基礎攻擊力 ${atk}。已學烈焰智慧時 ${burn}% 機率燃燒 ${burnSec} 秒。滿級熟練度 55%。`;
+          } },
+          // 二轉
+          { id: 'bw_flame_wisdom', tier: 2, name: '烈焰智慧', type: '被動', icon: '🔥', maxLv: 20, desc: (lv) => {
+            const dot = (0.5 + (lv - 1) * (2 / 19)).toFixed(1);
+            return `火屬性攻擊可使敵人燃燒，每秒造成基礎攻擊力 ${dot} 的火焰傷害。對怕火的敵人效果更強，火免疫則不會燃燒。`;
+          } },
+          { id: 'bw_meditation', tier: 2, name: '精神強力', type: '輔助', icon: '🧘', maxLv: 20, desc: () => `短暫冥想，提升周圍隊員的魔力。滿級後此效果會加入祝福技能。` },
+          { id: 'bw_element_reset', tier: 2, name: '自然力重置', type: '輔助', icon: '🌀', maxLv: 20, req: { bw_flame_wisdom: 5 }, desc: (lv) => {
+            const dur = Math.round(110 + (lv - 1) * (190 / 19));
+            return `${dur} 秒內，周圍隊員的屬性魔法攻擊轉為無屬性（物理攻擊不受影響），且無法使敵人中毒、結冰或燃燒。滿級後加入祝福技能。`;
+          } },
+          { id: 'bw_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `消耗 MP ${Math.max(8, 40 - Math.floor(lv * 1.3))}，朝指定方向瞬間移動一段距離。` },
+          { id: 'bw_flame_arrow', tier: 2, name: '烈焰箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => {
+            const atk = Math.round(17 + (lv - 1) * (58 / 19));
+            const burn = Math.round(40 + (lv - 1) * (40 / 19));
+            const burnSec = Math.round(11 + (lv - 1) * (9 / 19));
+            return `貫穿最多 3 名敵人，基礎攻擊力 ${atk}，對冰屬性敵人造成額外傷害。已學烈焰智慧時 ${burn}% 機率燃燒 ${burnSec} 秒。滿級熟練度 60%。`;
+          } },
+          { id: 'bw_fire_pillar', tier: 2, name: '火柱', type: '主動', icon: '🌋', maxLv: 20, desc: (lv) => {
+            const atk = Math.round(42 + (lv - 1) * (38 / 19));
+            const crit = Math.round(20 + (lv - 1) * (20 / 19));
+            return `攻擊自身周圍最多 6 名敵人，基礎攻擊力 ${atk}。不會附加燃燒，但對已燃燒的敵人爆擊率 +${crit}%。滿級熟練度 60%。`;
+          } },
+          { id: 'bw_spell_booster', tier: 2, name: '極速詠唱', type: '輔助', icon: '⏩', maxLv: 20, desc: (lv) => {
+            const dur = Math.round(15 + (lv - 1) * (285 / 19));
+            const stage = lv <= 10 ? 1 : 2;
+            return `消耗大量 HP 與 MP，${dur} 秒內魔法攻擊速度 +${stage} 階段。`;
+          } },
+          // 三轉
+          { id: 'bw_flame_mastery', tier: 3, name: '烈焰精通', type: '被動', icon: '📈', maxLv: 20, req: { bw_flame_wisdom: 20 }, desc: (lv) => {
+            const bonus = Math.round(1 + (lv - 1) * (9 / 19));
+            const burn = (2.5 + (lv - 1) * (9.5 / 19)).toFixed(1);
+            return `火屬性攻擊傷害 +${bonus}%，燃燒基礎攻擊力提升至 ${burn}。`;
+          } },
+          { id: 'bw_flame_resist', tier: 3, name: '烈焰抵抗', type: '被動', icon: '💠', maxLv: 20, desc: (lv) => `火焰抗性 +${Math.round(23 + (lv - 1) * (52 / 19))}%。` },
+          { id: 'bw_element_amp', tier: 3, name: '魔力激發', type: '輔助', icon: '📈', maxLv: 30, desc: (lv) => `${lv * 10} 秒內魔法傷害 +${Math.round(lv * 50 / 30)}%，MP 消耗 +${Math.round(lv * 100 / 30)}%。` },
+          { id: 'bw_flame_absorb', tier: 3, name: '烈焰吸收', type: '被動', icon: '❤️', maxLv: 20, desc: (lv) => `自身造成的燃燒每次結算時，恢復該次傷害 ${(1 + (lv - 1) * (3 / 19)).toFixed(1)}% 的 HP。` },
+          { id: 'bw_seal', tier: 3, name: '魔法封印', type: '輔助', icon: '🤐', maxLv: 20, req: { bw_element_amp: 3 }, desc: (lv) => {
+            const def = Math.round(20 + (lv - 1) * (20 / 19));
+            const chance = Math.round(38 + (lv - 1) * (57 / 19));
+            const dur = Math.round(10 + (lv - 1) * (10 / 19));
+            return `對最多 6 名敵人降低物魔防禦 ${def}%，${chance}% 機率封印 ${dur} 秒。對 Boss 也有效。`;
+          } },
+          { id: 'bw_flame_barrier', tier: 3, name: '火牢術屏障', type: '主動', icon: '⭕', maxLv: 30, req: { bw_flame_mastery: 1 }, desc: (lv) => {
+            const cast = (8 + (lv - 1) * (14.5 / 29)).toFixed(1);
+            const bar = (16 + (lv - 1)).toFixed(1);
+            const dur = Math.round(4 + (lv - 1) * (36 / 29));
+            const burn = Math.round(30 + (lv - 1) * (70 / 29));
+            return `施放時攻擊最多 6 名敵人一次，基礎攻擊力 ${cast}。屏障基礎攻擊力 ${bar}，持續 ${dur} 秒，${burn}% 機率燃燒 15 秒。每秒最多命中 6 名、同一目標每秒最多 3 次。地圖最多同時存在 6 座屏障。滿級熟練度 60%。`;
+          } },
+          { id: 'bw_flame_breath', tier: 3, name: '火焰吐息', type: '主動', icon: '☄️', maxLv: 30, desc: (lv) => {
+            const atk = (36.5 + (lv - 1) * (33.5 / 29)).toFixed(1);
+            const burn = Math.round(41 + (lv - 1));
+            const time = lv <= 4 ? 6 : lv <= 11 ? 7 : lv <= 19 ? 8 : lv <= 26 ? 9 : 10;
+            return `攻擊最多 6 名敵人，各 2 次，每次基礎攻擊力 ${atk}。${burn}% 機率燃燒 ${time} 秒。滿級熟練度 60%。`;
+          } },
+          // 四轉
+          { id: 'bw_cygnus', tier: 4, name: '西格諾斯騎士', type: '輔助', icon: '👑', maxLv: 30, desc: (lv) => `女皇的祝福。所有能力值 +${Math.round(lv * 15 / 30)}%，持續 ${lv * 30} 秒。` },
+          { id: 'bw_flame_truth', tier: 4, name: '烈焰真理', type: '被動', icon: '📖', maxLv: 20, desc: (lv) => {
+            const mast = Math.round(1 + (lv - 1) * (9 / 19));
+            const crit = Math.round(11 + (lv - 1));
+            return `自身施放的火屬性攻擊魔法熟練度 +${mast}%（不適用於召喚物與火牢術屏障）。自身附加的燃燒爆擊率 +${crit}%。`;
+          } },
+          { id: 'bw_fire_walk', tier: 4, name: '火步行', type: '主動', icon: '👟', maxLv: 30, req: { bw_teleport: 1 }, desc: (lv) => {
+            const atk = Math.round(22 + (lv - 1) * (58 / 29));
+            const burn = Math.round(43 + (lv - 1) * (57 / 29));
+            const time = Math.round(11 + (lv - 1) * (9 / 29));
+            return `瞬間移動後，在原處留下火焰，攻擊最多 6 名敵人 1 次，基礎攻擊力 ${atk}。${burn}% 機率燃燒 ${time} 秒。滿級熟練度 60%。`;
+          } },
+          { id: 'bw_fire_book', tier: 4, name: '火之書', type: '輔助', icon: '📕', maxLv: 30, desc: (lv) => {
+            const dur = 11 + (lv - 1);
+            const cd = Math.round(600 - (lv - 1) * (180 / 29));
+            return `消耗魔法石 1 個。${dur} 秒內，施放者每 1 點智力使最終傷害 +0.018%。冷卻 ${cd} 秒。`;
+          } },
+          { id: 'bw_meteor', tier: 4, name: '火流星', type: '主動', icon: '🌠', maxLv: 30, desc: (lv) => `消耗 MP ${Math.round(lv * 3500 / 30)}，召喚火流星，基礎攻擊力 ${Math.round(lv * 570 / 30)}。100% 燃燒 5 秒。` },
+          { id: 'bw_fire_storm', tier: 4, name: '火風暴', type: '主動', icon: '🌪️', maxLv: 30, desc: (lv) => {
+            const atk = (26.5 + (lv - 1) * (46.5 / 29)).toFixed(1);
+            const burn = Math.round(71 + (lv - 1));
+            const time = lv <= 4 ? 1 : lv <= 11 ? 2 : lv <= 19 ? 3 : lv <= 26 ? 4 : 5;
+            return `兩顆巨大火球攻擊最多 6 名敵人，各 2 次，每次基礎攻擊力 ${atk}。${burn}% 機率燃燒 ${time} 秒。滿級熟練度 80%。`;
+          } },
+          { id: 'bw_fire_curtain', tier: 4, name: '火幕', type: '被動', icon: '🧱', maxLv: 30, req: { bw_flame_barrier: 1 }, desc: (lv) => {
+            const crit = 21 + (lv - 1);
+            const cdmg = Math.round(150 + (lv - 1) * (100 / 29));
+            const burn = (12 + (lv - 1) * (36 / 29)).toFixed(1);
+            return `強化火牢術屏障。對燃燒中的敵人爆擊率 +${crit}%、爆擊傷害 ${cdmg}%，燃燒基礎攻擊力 ${burn}。`;
+          } },
+          { id: 'bw_flame_sprite', tier: 4, name: '烈焰水靈', type: '召喚', icon: '👹', maxLv: 30, req: { bw_flame_orb: 20 }, desc: (lv) => {
+            const atk = Math.round(34 + (lv - 1) * (166 / 29));
+            const dur = Math.round(10 + (lv - 1) * (290 / 29));
+            const time = Math.round(3 + (lv - 1) * (17 / 29));
+            return `消耗召喚石 1 個，召喚烈焰水靈攻擊最多 3 名敵人，基礎攻擊力 ${atk}，持續 ${dur} 秒。100% 燃燒 ${time} 秒。無法與火牢術的火之精靈同時召喚。`;
+          } },
+          { id: 'bw_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態，等級越高可解除的種類越多。冷卻 10 分鐘。` }
+        ]
+      },
+
+      wind_archer: {
+        id: 'wind_archer',
+        name: '破風使者',
+        faction: 'cygnus',
+        category: '騎士團・弓箭手',
+        icon: '🍃',
+        maxLevel: 200,
+        desc: '可成長至 200 等的騎士團弓箭手。以風影漫步在空中射擊，四轉於阿爾法狀態施展疾風光速神弩與疾風掃射。',
+        tiers: [
+          { tier: 1, name: '一轉・破風見習' },
+          { tier: 2, name: '二轉・破風使者' },
+          { tier: 3, name: '三轉・破風使者' },
+          { tier: 4, name: '四轉・破風使者' },
+        ],
+        presets: [
+          {
+            name: '200等 空中射擊練功型',
+            level: 200,
+            note: '一轉點滿精準強化、二連箭與暴風；二轉點滿風影漫步、終極攻擊與暴風射擊；三轉主攻阿爾法與四連箭；四轉疾風光速神弩與疾風掃射。每一轉的點數都會先點完，才點下一轉。',
+            skills: {
+              wa_eye: 16, wa_crit: 5, wa_range: 5, wa_double: 15, wa_storm: 20, wa_mastery: 20, wa_booster: 20, wa_walk: 10, wa_final: 30, wa_soul_arrow: 11, wa_storm_shot: 30, wa_alpha_eye: 30, wa_speed: 20, wa_mortal: 20, wa_puppet: 20, wa_alpha: 20, wa_quad: 30, wa_rain: 11, wa_cygnus: 30, wa_expert: 30, wa_feather: 20, wa_prayer: 20, wa_adv_storm: 30, wa_hurricane: 30, wa_strafe: 30, wa_hero: 1
+            }
+          }
+        ],
+        skills: [
+          // 一轉
+          { id: 'wa_eye', tier: 1, name: '精準強化', type: '被動', icon: '🎯', maxLv: 16, desc: (lv) => `提高命中率。` },
+          { id: 'wa_crit', tier: 1, name: '霸王箭', type: '被動', icon: '💥', maxLv: 20, desc: (lv) => `暴擊機率 ${Math.round(lv * 2)}%，暴擊傷害 ${100 + lv * 5}%。` },
+          { id: 'wa_range', tier: 1, name: '百步穿楊', type: '被動', icon: '🏹', maxLv: 8, req: { wa_eye: 3 }, desc: (lv) => `弓與弩的射程增加。` },
+          { id: 'wa_focus', tier: 1, name: '集中術', type: '輔助', icon: '🧘', maxLv: 20, req: { wa_eye: 3 }, desc: (lv) => `一定時間內命中率與迴避率提升。` },
+          { id: 'wa_storm', tier: 1, name: '暴風', type: '召喚', icon: '🌪️', maxLv: 20, desc: (lv) => `召喚風之精靈，攻擊周圍最近最多 3 名敵人，基礎攻擊力 ${lvSpan(lv, 20, 21, 40)}，持續 ${lvSpan(lv, 20, 158, 300)} 秒，物魔防禦 +${lv <= 5 ? 10 : lv <= 10 ? 15 : lv <= 15 ? 20 : 25}。` },
+          { id: 'wa_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `消耗兩支箭，攻擊敵人 2 次。滿級每次傷害 130%。` },
+          // 二轉
+          { id: 'wa_mastery', tier: 2, name: '精準之弓', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `弓的熟練度與命中率提升。必須裝備弓。` },
+          { id: 'wa_booster', tier: 2, name: '快速之箭', type: '輔助', icon: '⚡', maxLv: 20, req: { wa_mastery: 5 }, desc: (lv) => `弓的攻擊速度 +1 階段，持續 ${lv * 15} 秒。滿級消耗 HP 與 MP 各 10。` },
+          { id: 'wa_walk', tier: 2, name: '風影漫步', type: '被動', icon: '💨', maxLv: 10, desc: (lv) => `移動速度 +${lv}。跳躍或下落時可使用二連箭、四連箭、箭雨、疾風光速神弩與疾風掃射。` },
+          { id: 'wa_final', tier: 2, name: '終極攻擊', type: '輔助', icon: '💥', maxLv: 30, req: { wa_mastery: 3 }, desc: (lv) => `使用二連箭時，${lvSpan(lv, 30, 2, 60)}% 機率追加一支箭，追加傷害滿級 250%。持續 ${lvSpan(lv, 30, 155, 300)} 秒。` },
+          { id: 'wa_soul_arrow', tier: 2, name: '無形之箭', type: '輔助', icon: '👻', maxLv: 20, req: { wa_booster: 5 }, desc: (lv) => `持續 ${lvSpan(lv, 20, 15, 300)} 秒，弓箭無視 ${lv <= 5 ? 1 : lv <= 10 ? 2 : lv <= 15 ? 3 : 4}% 防禦。` },
+          { id: 'wa_storm_shot', tier: 2, name: '暴風射擊', type: '主動', icon: '🌪️', maxLv: 30, desc: (lv) => `傷害 ${lvSpan(lv, 30, 65, 160)}%，擊退機率 ${lvSpan(lv, 30, 43, 100)}%，最多 ${lv <= 7 ? 3 : lv <= 15 ? 4 : lv <= 22 ? 5 : 6} 名敵人。` },
+          // 三轉
+          { id: 'wa_alpha_eye', tier: 3, name: '阿爾法之眼', type: '被動', icon: '👁️', maxLv: 30, desc: (lv) => `阿爾法狀態下，與敵人每相距 100，無視物理防禦 ${lvSpan(lv, 30, 3, 10)}%。` },
+          { id: 'wa_speed', tier: 3, name: '疾風步', type: '被動', icon: '👟', maxLv: 20, desc: (lv) => `提升移動速度。` },
+          { id: 'wa_mortal', tier: 3, name: '致命箭', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `裝備弓或弩時，部分無視防禦，並提升箭雨的傷害。` },
+          { id: 'wa_puppet', tier: 3, name: '替身術', type: '召喚', icon: '🪆', maxLv: 20, desc: (lv) => `召喚傀儡，在一定範圍內代為承受部分傷害。` },
+          { id: 'wa_alpha', tier: 3, name: '阿爾法', type: '輔助', icon: '🦅', maxLv: 20, desc: (lv) => `消耗召喚石 1 個。物魔防禦 +${lvSpan(lv, 20, 10, 50)}，移動速度 +40、跳躍力 +20，持續 ${lvSpan(lv, 20, 120, 300)} 秒。可使用阿爾法限定技能。` },
+          { id: 'wa_quad', tier: 3, name: '四連箭', type: '主動', icon: '🏹', maxLv: 30, desc: (lv) => `向一名敵人連續射擊。滿級傷害 100%，額外暴擊率 30%，對 Boss 傷害 +20%。可在空中施放。` },
+          { id: 'wa_rain', tier: 3, name: '箭雨', type: '主動', icon: '🌧️', maxLv: 20, desc: (lv) => `向天空射箭，攻擊周圍最多 6 名敵人，傷害 ${lvSpan(lv, 20, 65, 160)}%。僅限弓，可在空中施放。` },
+          // 四轉
+          { id: 'wa_cygnus', tier: 4, name: '西格諾斯騎士', type: '輔助', icon: '👑', maxLv: 30, desc: (lv) => `女皇的祝福。所有能力值 +${Math.round(lv * 15 / 30)}%，持續 ${lv * 30} 秒。` },
+          { id: 'wa_expert', tier: 4, name: '弓術精通', type: '被動', icon: '🏹', maxLv: 30, desc: (lv) => `弓的熟練度與物理攻擊力提升。必須裝備弓。` },
+          { id: 'wa_feather', tier: 4, name: '身輕如羽', type: '被動', icon: '🪶', maxLv: 20, desc: (lv) => `移動速度上限 +${lv}。` },
+          { id: 'wa_prayer', tier: 4, name: '風之祈禱', type: '輔助', icon: '🙏', maxLv: 20, req: { wa_booster: 20 }, desc: (lv) => `自身攻擊速度再 +2 階段，持續 ${lvSpan(lv, 20, 110, 300)} 秒。可與快速之箭疊加，不影響隊員。` },
+          { id: 'wa_adv_storm', tier: 4, name: '進階暴風', type: '輔助', icon: '🌪️', maxLv: 30, req: { wa_storm: 20 }, desc: (lv) => `消耗召喚石 1 個，不再召喚精靈。暴擊率 +${lvSpan(lv, 30, 1, 10)}%，暴擊傷害 +${lvSpan(lv, 30, 1, 30)}%，持續 300 秒。使用疾風光速神弩或疾風掃射時，阿爾法會追加一次相同攻擊，冷卻 ${lvSpan(lv, 30, 15, 3, 1)} 秒。` },
+          { id: 'wa_hurricane', tier: 4, name: '疾風光速神弩', type: '主動', icon: '💫', maxLv: 30, req: { wa_alpha: 20 }, desc: (lv) => `貫穿最多 ${lv <= 5 ? 3 : lv <= 10 ? 4 : lv <= 15 ? 5 : 6} 名敵人，傷害 ${lvSpan(lv, 30, 132, 770)}%。僅限阿爾法狀態，可在空中施放。` },
+          { id: 'wa_strafe', tier: 4, name: '疾風掃射', type: '主動', icon: '🏹', maxLv: 30, req: { wa_alpha: 20 }, desc: (lv) => `對一名敵人攻擊 3 次，每次傷害 ${lvSpan(lv, 30, 264, 404)}%。僅限阿爾法狀態，可在空中施放。` },
+          { id: 'wa_hero', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: (lv) => `解除特定異常狀態，等級越高可解除的種類越多。冷卻 10 分鐘。` },
+        ]
+      },
+
+      night_walker: {
+        id: 'night_walker',
+        name: '暗夜行者',
+        faction: 'cygnus',
+        category: '騎士團・盜賊',
+        icon: '🦇',
+        maxLevel: 200,
+        desc: '可成長至 200 等的騎士團盜賊。以連續飛鏢與暗影蝙蝠夾擊，四轉再以五連投擲與毒炸彈收尾。',
+        tiers: [
+          { tier: 1, name: '一轉・暗夜見習' },
+          { tier: 2, name: '二轉・暗夜行者' },
+          { tier: 3, name: '三轉・暗夜行者' },
+          { tier: 4, name: '四轉・暗夜行者' },
+        ],
+        presets: [
+          {
+            name: '200等 暗影蝙蝠練功型',
+            level: 200,
+            note: '一轉點滿幻體功、鷹之眼與黑暗雷鳥；二轉點滿強力投擲與吸血；三轉主攻暗影蝙蝠、風魔手裏劍與四飛閃；四轉五連投擲與毒炸彈。每一轉的點數都會先點完，才點下一轉。',
+            skills: {
+              nw_agility: 20, nw_eye: 8, nw_bird: 20, nw_dark: 3, nw_lucky: 10, nw_mastery: 20, nw_booster: 20, nw_crit: 30, nw_haste: 20, nw_triple: 11, nw_drain: 20, nw_potion: 20, nw_web: 20, nw_bat: 40, nw_avenger: 30, nw_quad: 30, nw_jump: 11, nw_cygnus: 30, nw_expert: 20, nw_adv_bird: 30, nw_link: 20, nw_dodge: 30, nw_bomb: 30, nw_quint: 30, nw_hero: 1
+            }
+          }
+        ],
+        skills: [
+          // 一轉
+          { id: 'nw_agility', tier: 1, name: '幻體功', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `命中率與迴避率增加。` },
+          { id: 'nw_eye', tier: 1, name: '鷹之眼', type: '被動', icon: '🦅', maxLv: 8, req: { nw_agility: 3 }, desc: (lv) => `鏢與飛鏢的射程增加。` },
+          { id: 'nw_bird', tier: 1, name: '黑暗雷鳥', type: '召喚', icon: '🐦', maxLv: 20, desc: (lv) => `召喚黑暗雷鳥，攻擊周圍最多 3 名敵人，基礎攻擊力 ${lvSpan(lv, 20, 21, 40)}，持續 ${lvSpan(lv, 20, 158, 300)} 秒，物魔防禦 +${lv <= 5 ? 10 : lv <= 10 ? 15 : lv <= 15 ? 20 : 25}。` },
+          { id: 'nw_dark', tier: 1, name: '隱身術', type: '輔助', icon: '👤', maxLv: 20, desc: (lv) => `消耗 MP，隱入影子。不會受到攻擊，也無法攻擊。` },
+          { id: 'nw_lucky', tier: 1, name: '雙飛斬', type: '主動', icon: '🌟', maxLv: 20, desc: (lv) => `投出 2 枚飛鏢，依幸運值攻擊。滿級每枚傷害 150%。` },
+          // 二轉
+          { id: 'nw_mastery', tier: 2, name: '精準暗器', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `飛鏢的熟練度提升。僅限飛鏢。` },
+          { id: 'nw_booster', tier: 2, name: '極速暗殺', type: '輔助', icon: '⚡', maxLv: 20, req: { nw_mastery: 5 }, desc: (lv) => `拳套攻擊速度 +1 階段，持續 ${lv * 15} 秒。滿級消耗 HP 與 MP 各 10。` },
+          { id: 'nw_crit', tier: 2, name: '強力投擲', type: '被動', icon: '💥', maxLv: 30, req: { nw_mastery: 3 }, desc: (lv) => `飛鏢攻擊暴擊機率 ${Math.round(lv * 50 / 30)}%，暴擊傷害 ${Math.round(100 + lv * 100 / 30)}%。` },
+          { id: 'nw_haste', tier: 2, name: '速度激發', type: '輔助', icon: '👟', maxLv: 20, desc: (lv) => `隊員移動速度 +${lv * 2}、跳躍力 +${lv}，持續 ${lv * 15} 秒。滿級後加入祝福技能。` },
+          { id: 'nw_triple', tier: 2, name: '三飛閃', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `一次投出 3 枚飛鏢，每枚傷害 ${lvSpan(lv, 20, 68, 160)}%。` },
+          { id: 'nw_drain', tier: 2, name: '吸血', type: '主動', icon: '🦇', maxLv: 20, desc: (lv) => `攻擊最多 ${lv <= 5 ? 3 : lv <= 10 ? 4 : lv <= 15 ? 5 : 6} 名敵人 4 次，每次傷害 ${lvSpan(lv, 20, 11, 30)}%，並吸收傷害的 ${lv <= 5 ? 1 : lv <= 10 ? 2 : lv <= 15 ? 3 : 4}%。單次恢復不超過最大 HP 的一半。` },
+          // 三轉
+          { id: 'nw_potion', tier: 3, name: '藥劑精通', type: '被動', icon: '🧪', maxLv: 20, desc: (lv) => `恢復藥劑效果上升，狀態藥劑的持續時間延長。以百分比恢復的特殊藥水無效。` },
+          { id: 'nw_web', tier: 3, name: '影網術', type: '主動', icon: '🕸️', maxLv: 20, desc: (lv) => `以影子纏住最多 6 名怪物，成功機率 ${lvSpan(lv, 20, 42, 80)}%，束縛 ${lv <= 5 ? 5 : lv <= 10 ? 6 : lv <= 15 ? 7 : 8} 秒。` },
+          { id: 'nw_bat', tier: 3, name: '暗影蝙蝠', type: '被動', icon: '🦇', maxLv: 40, req: { nw_drain: 20 }, desc: (lv) => `飛鏢每命中 4 次生成 1 隻暗影蝙蝠，持續 60 秒。上限 ${lv <= 10 ? 1 : lv <= 30 ? 2 : 3} 隻，每次飛鏢攻擊有 35% 機率衝向敵人，傷害 ${lvSpan(lv, 40, 53, 140)}%。` },
+          { id: 'nw_avenger', tier: 3, name: '風魔手裏劍', type: '主動', icon: '🌀', maxLv: 30, desc: (lv) => `投出貫穿飛鏢，滿級傷害 180%，最多 ${lv <= 10 ? 4 : lv <= 20 ? 5 : 6} 名敵人。` },
+          { id: 'nw_quad', tier: 3, name: '四飛閃', type: '主動', icon: '✨', maxLv: 30, desc: (lv) => `連續投出 4 枚飛鏢，每枚傷害 ${lvSpan(lv, 30, 86, 107)}%。` },
+          { id: 'nw_jump', tier: 3, name: '二段跳', type: '主動', icon: '👟', maxLv: 20, desc: (lv) => `跳躍到空中後可再向前跳一次，距離隨等級增加。` },
+          // 四轉
+          { id: 'nw_cygnus', tier: 4, name: '西格諾斯騎士', type: '輔助', icon: '👑', maxLv: 30, desc: (lv) => `女皇的祝福。所有能力值 +${Math.round(lv * 15 / 30)}%，持續 ${lv * 30} 秒。` },
+          { id: 'nw_expert', tier: 4, name: '投擲專家', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `雙飛斬、三飛閃、四飛閃、五連投擲的熟練度 +${lv * 3}%。` },
+          { id: 'nw_adv_bird', tier: 4, name: '進階黑暗雷鳥', type: '輔助', icon: '🐦', maxLv: 30, req: { nw_bird: 20 }, desc: (lv) => `消耗召喚石 1 個，不再召喚精靈，改為持續 300 秒的增益。親自擊倒怪物時 ${lvSpan(lv, 30, 31, 60)}% 再生成 1 隻暗影蝙蝠，蝙蝠暴擊率 +${lvSpan(lv, 30, 6, 20)}%。` },
+          { id: 'nw_link', tier: 4, name: '蝙蝠交流', type: '被動', icon: '🦇', maxLv: 20, desc: (lv) => `暗影蝙蝠上限 +${lv <= 5 ? 1 : lv <= 15 ? 2 : 3}，傷害 +${lvSpan(lv, 20, 5, 100)}%，蝙蝠攻擊變為毒屬性。` },
+          { id: 'nw_dodge', tier: 4, name: '躲避', type: '被動', icon: '💨', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 1, 30)}% 機率迴避攻擊。迴避後的下一次攻擊必定暴擊。` },
+          { id: 'nw_bomb', tier: 4, name: '毒炸彈', type: '主動', icon: '☠️', maxLv: 30, desc: (lv) => `傷害 ${lvSpan(lv, 30, 104, 220)}%，並濺射周圍最多 5 名敵人。劇毒持續 ${lvSpan(lv, 30, 5, 15)} 秒，劇毒攻擊力 ${lvSpan(lv, 30, 62, 120)}。對 Boss 也有效。` },
+          { id: 'nw_quint', tier: 4, name: '五連投擲', type: '主動', icon: '🌟', maxLv: 30, desc: (lv) => `連續投出 5 枚飛鏢，每枚傷害 ${lvSpan(lv, 30, 87, 129)}%。` },
+          { id: 'nw_hero', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: (lv) => `解除特定異常狀態，等級越高可解除的種類越多。冷卻 10 分鐘。` },
+        ]
+      },
+
+      thunder_breaker: {
+        id: 'thunder_breaker',
+        name: '閃雷悍將',
+        faction: 'cygnus',
+        category: '騎士團・海盜',
+        icon: '⚡',
+        maxLevel: 200,
+        desc: '可成長至 200 等的騎士團海盜。以雷屬性快拳與暴擊連打，四轉主力為閃電疾拳與鯨噬。',
+        tiers: [
+          { tier: 1, name: '一轉・閃雷見習' },
+          { tier: 2, name: '二轉・閃雷悍將' },
+          { tier: 3, name: '三轉・閃雷悍將' },
+          { tier: 4, name: '四轉・閃雷悍將' },
+        ],
+        presets: [
+          {
+            name: '200等 雷拳連打練功型',
+            level: 200,
+            note: '一轉點滿極限迴避、閃電與衝擊拳；二轉點滿雷鳴與颶風飛擊；三轉主攻衝壓暴擊、閃光擊與閃電重擊；四轉閃電疾拳與鯨噬。每一轉的點數都會先點完，才點下一轉。',
+            skills: {
+              tb_avoid: 20, tb_light: 20, tb_punch: 20, tb_spin: 1, tb_hp: 10, tb_mastery: 20, tb_booster: 20, tb_thunder: 30, tb_tornado: 30, tb_rush: 11, tb_atlas: 20, tb_crit: 30, tb_light_mastery: 30, tb_drain: 21, tb_spark: 20, tb_blast: 30, tb_cygnus: 30, tb_stance: 30, tb_adv_light: 30, tb_rapid: 30, tb_shark: 30, tb_flash: 30, tb_body: 30, tb_hero: 1
+            }
+          }
+        ],
+        skills: [
+          // 一轉
+          { id: 'tb_avoid', tier: 1, name: '極限迴避', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `命中率與迴避率增加。` },
+          { id: 'tb_light', tier: 1, name: '閃電', type: '召喚', icon: '⚡', maxLv: 20, desc: (lv) => `召喚閃電精靈，以雷屬性攻擊周圍最多 3 名敵人，基礎攻擊力 ${lvSpan(lv, 20, 21, 40)}，持續 ${lvSpan(lv, 20, 158, 300)} 秒，物魔防禦 +${lv <= 5 ? 10 : lv <= 10 ? 15 : lv <= 15 ? 20 : 25}。` },
+          { id: 'tb_punch', tier: 1, name: '衝擊拳', type: '主動', icon: '👊', maxLv: 20, desc: (lv) => `消耗 MP，以拳頭快速攻擊。滿級傷害 270%。` },
+          { id: 'tb_spin', tier: 1, name: '旋風斬', type: '主動', icon: '🌀', maxLv: 20, desc: (lv) => `跳躍後旋踢。滿級傷害 190%，最多 ${lv <= 5 ? 3 : lv <= 10 ? 4 : lv <= 15 ? 5 : 6} 名敵人。` },
+          { id: 'tb_dash', tier: 1, name: '衝鋒', type: '輔助', icon: '💨', maxLv: 10, desc: (lv) => `一定時間內提升移動速度與跳躍力。` },
+          // 二轉
+          { id: 'tb_hp', tier: 2, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, desc: (lv) => `升級時額外增加的最大 HP 提高。` },
+          { id: 'tb_mastery', tier: 2, name: '精通指虎', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `指虎的熟練度與命中率提升。必須裝備指虎。` },
+          { id: 'tb_booster', tier: 2, name: '致命快打', type: '輔助', icon: '⚡', maxLv: 20, req: { tb_mastery: 5 }, desc: (lv) => `指虎攻擊速度 +1 階段。必須裝備指虎。` },
+          { id: 'tb_thunder', tier: 2, name: '雷鳴', type: '輔助', icon: '⚡', maxLv: 30, desc: (lv) => `所有攻擊附加雷屬性，無視防禦 ${lv <= 6 ? 1 : lv <= 12 ? 2 : lv <= 18 ? 3 : lv <= 24 ? 4 : 5}%，持續 ${lvSpan(lv, 30, 26, 300)} 秒。` },
+          { id: 'tb_tornado', tier: 2, name: '颶風飛擊', type: '主動', icon: '🌪️', maxLv: 30, desc: (lv) => `以躍空剪掀起龍捲風，傷害 ${lvSpan(lv, 30, 176, 290)}%，最多 6 名敵人。` },
+          { id: 'tb_rush', tier: 2, name: '狂暴衝擊', type: '主動', icon: '💥', maxLv: 20, desc: (lv) => `向前突進並攻擊面前多名敵人。蓄力至滿時，滿級傷害 405%。` },
+          // 三轉
+          { id: 'tb_atlas', tier: 3, name: '阿特拉斯', type: '被動', icon: '🛡️', maxLv: 20, desc: (lv) => `永久減少所受傷害 ${lvSpan(lv, 20, 0.5, 10, 1)}%。` },
+          { id: 'tb_crit', tier: 3, name: '衝壓暴擊', type: '被動', icon: '💥', maxLv: 30, desc: (lv) => `暴擊機率 ${lvSpan(lv, 30, 12, 40)}%，暴擊傷害 ${Math.round(100 + lv * 100 / 30)}%。` },
+          { id: 'tb_light_mastery', tier: 3, name: '閃電精通', type: '被動', icon: '⚡', maxLv: 30, desc: (lv) => `雷屬性攻擊傷害 +${lvSpan(lv, 30, 1, 10)}%。` },
+          { id: 'tb_drain', tier: 3, name: '魔力汲取', type: '被動', icon: '💧', maxLv: 30, desc: (lv) => `擊倒敵人時 ${lvSpan(lv, 30, 10, 40)}% 機率恢復 MP ${lvSpan(lv, 30, 10, 20)}。` },
+          { id: 'tb_spark', tier: 3, name: '閃光擊', type: '主動', icon: '✨', maxLv: 20, req: { tb_thunder: 30 }, desc: (lv) => `以閃電精靈追加攻擊，傷害 ${lvSpan(lv, 20, 82, 120)}%，並波及周圍最多 ${lv <= 10 ? 2 : 3} 名敵人。持續 ${lvSpan(lv, 20, 63, 300)} 秒。` },
+          { id: 'tb_blast', tier: 3, name: '閃電重擊', type: '主動', icon: '👊', maxLv: 30, desc: (lv) => `以帶電的拳頭攻擊前方 1 名敵人，傷害 ${lvSpan(lv, 30, 267, 400)}%。` },
+          // 四轉
+          { id: 'tb_cygnus', tier: 4, name: '西格諾斯騎士', type: '輔助', icon: '👑', maxLv: 30, desc: (lv) => `女皇的祝福。所有能力值 +${Math.round(lv * 15 / 30)}%，持續 ${lv * 30} 秒。` },
+          { id: 'tb_stance', tier: 4, name: '雷霆意志', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 35, 100)}% 機率不被擊退。滿級持續 300 秒。` },
+          { id: 'tb_adv_light', tier: 4, name: '進階閃電', type: '輔助', icon: '⚡', maxLv: 30, req: { tb_light: 20 }, desc: (lv) => `消耗召喚石 1 個，不再召喚精靈。閃光擊範圍擴大為 2 倍，最多 ${lv <= 10 ? 4 : lv <= 20 ? 5 : 6} 名敵人，傷害再 +${lvSpan(lv, 30, 1, 30)}%。` },
+          { id: 'tb_rapid', tier: 4, name: '閃電疾拳', type: '主動', icon: '👊', maxLv: 30, desc: (lv) => `以極短間隔連續揮出閃電拳，攻擊前方 1 名敵人，每次傷害 ${lvSpan(lv, 30, 96, 125)}%。` },
+          { id: 'tb_shark', tier: 4, name: '鯨噬', type: '主動', icon: '🐋', maxLv: 30, desc: (lv) => `貫穿前方最多 ${lv <= 10 ? 4 : lv <= 20 ? 5 : 6} 名敵人，傷害 ${lvSpan(lv, 30, 275, 810)}%。` },
+          { id: 'tb_flash', tier: 4, name: '閃光', type: '主動', icon: '💫', maxLv: 30, desc: (lv) => `瞬間衝到前方敵人面前並攻擊最多 4 名，傷害 ${lvSpan(lv, 30, 46, 56)}%。2 秒內不可連續使用。` },
+          { id: 'tb_body', tier: 4, name: '閃電之軀', type: '被動', icon: '⚡', maxLv: 30, desc: (lv) => `受到雷屬性傷害時，恢復該次所受傷害 ${lvSpan(lv, 30, 11, 40)}% 的 MP。` },
+          { id: 'tb_hero', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: (lv) => `解除特定異常狀態，等級越高可解除的種類越多。冷卻 10 分鐘。` },
+        ]
+      },
+
+      bishop: {
+        id: 'bishop',
+        name: '主教',
+        faction: 'adventurer',
+        category: '冒險家・法師',
+        icon: '👼',
+        maxLevel: 200,
+        desc: '隊伍不可或缺的神聖輔助與不死族剋星，擁有祈禱、復活與天怒清圖能力。',
+        tiers: [
+          { tier: 1, name: '一轉・法師' },
+          { tier: 2, name: '二轉・僧侶' },
+          { tier: 3, name: '三轉・祭司' },
+          { tier: 4, name: '四轉・主教' }
+        ],
+        presets: [
+          {
+            name: '200等 祈禱天怒全能型',
+            level: 200,
+            note: '二轉滿群體治癒與神聖之光；三轉核心神聖祈禱、淨化與時空門必滿；四轉優先天怒、聖靈召喚與復活術。',
+            skills: {
+              bs_mp_inc: 10, bs_magic_guard: 20, bs_magic_claw: 20, bs_mp_rec: 16,
+              bs_heal: 30, bs_invincible: 20, bs_bless: 20, bs_teleport: 20, bs_holy_arrow: 30,
+              bs_hs: 30, bs_dispel: 20, bs_mystic_door: 20, bs_element_res: 20, bs_shining_ray: 30, bs_summon_dragon: 30,
+              bs_genesis: 30, bs_bahamut: 30, bs_resurrection: 10, bs_angel_ray: 30, bs_maple_warrior: 30, bs_infinity: 30, bs_holy_shield: 30
+            }
+          }
+        ],
+        skills: [
+          { id: 'bs_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
+          { id: 'bs_mp_inc', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { bs_mp_rec: 5 }, desc: (lv) => `升級時額外增加最大 MP 上限 +${lv * 2}。` },
+          { id: 'bs_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `消耗 MP ${12}，將 ${10 + lv * 3.5}% 傷害轉由 MP 承受。` },
+          { id: 'bs_magic_claw', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `發射 2 發魔法彈攻擊單體，基礎威力 ${30 + lv * 1.5}。` },
+          { id: 'bs_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `消耗 MP ${40 - lv * 1.3 | 0}，朝指定方向瞬間移動。` },
+          { id: 'bs_heal', tier: 2, name: '群體治癒', type: '主動', icon: '💚', maxLv: 30, desc: (lv) => `恢復周圍隊友大量 HP，並對不死系怪物造成神聖傷害，回復量 ${100 + lv * 10}%。` },
+          { id: 'bs_invincible', tier: 2, name: '神聖之光', type: '輔助', icon: '🛡️', maxLv: 20, req: { bs_heal: 5 }, desc: (lv) => `降低受到的物理傷害 ${10 + lv}%。` },
+          { id: 'bs_bless', tier: 2, name: '天使祝福', type: '輔助', icon: '👼', maxLv: 20, req: { bs_invincible: 5 }, desc: (lv) => `提升隊友命中、迴避、物理與魔法防禦 +${lv}。` },
+          { id: 'bs_holy_arrow', tier: 2, name: '聖箭術', type: '主動', icon: '🏹', maxLv: 30, desc: (lv) => `發射神聖之箭攻擊單體，對不死與惡魔系有額外加成，基礎威力 ${60 + lv * 2}。` },
+          { id: 'bs_dispel', tier: 3, name: '淨化', type: '輔助', icon: '✨', maxLv: 20, desc: (lv) => `有 ${40 + lv * 3}% 機率解除隊友異常狀態並消除怪物增益。` },
+          { id: 'bs_mystic_door', tier: 3, name: '時空門', type: '輔助', icon: '🚪', maxLv: 20, req: { bs_dispel: 3 }, desc: (lv) => `消耗魔法石，開啟通往最近村莊的傳送門 ${lv * 10} 秒。` },
+          { id: 'bs_hs', tier: 3, name: '神聖祈禱', type: '輔助', icon: '🌟', maxLv: 30, req: { bs_dispel: 3 }, desc: (lv) => `組隊打怪獲得經驗值提升至 ${100 + Math.floor(lv * 1.67)}%！` },
+          { id: 'bs_element_res', tier: 3, name: '屬性抗性', type: '被動', icon: '💠', maxLv: 20, desc: (lv) => `所有屬性抗性提升 +${lv * 2}%。` },
+          { id: 'bs_shining_ray', tier: 3, name: '聖光', type: '主動', icon: '☀️', maxLv: 30, desc: (lv) => `釋放聖光攻擊最多 6 名敵人並機率暈眩，基礎威力 ${75 + lv * 1.5}。` },
+          { id: 'bs_summon_dragon', tier: 3, name: '聖龍召喚', type: '召喚', icon: '🐉', maxLv: 30, desc: (lv) => `召喚神聖之龍協助攻擊 ${lv * 5} 秒。` },
+          { id: 'bs_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性（STR/DEX/INT/LUK）提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'bs_genesis', tier: 4, name: '天怒', type: '主動', icon: '🌠', maxLv: 30, desc: (lv) => `召喚神聖光柱轟炸全畫面最多 15 名敵人，基礎威力 ${450 + lv * 8}。` },
+          { id: 'bs_bahamut', tier: 4, name: '聖靈召喚', type: '召喚', icon: '🐲', maxLv: 30, req: { bs_summon_dragon: 15 }, desc: (lv) => `召喚高階聖靈巴哈姆特，攻擊最多 3 名敵人，威力 ${180 + lv * 3}。` },
+          { id: 'bs_resurrection', tier: 4, name: '復活術', type: '輔助', icon: '✝️', maxLv: 10, desc: (lv) => `復活地圖內死亡的隊友，冷卻時間 ${600 - lv * 30} 秒。` },
+          { id: 'bs_angel_ray', tier: 4, name: '光芒飛箭', type: '主動', icon: '💫', maxLv: 30, desc: (lv) => `發射強力聖光箭貫穿敵人，基礎威力 ${190 + lv * 3}。` },
+          { id: 'bs_infinity', tier: 4, name: '魔力無限', type: '輔助', icon: '♾️', maxLv: 30, desc: (lv) => `${10 + lv} 秒內施放任何技能皆不消耗 MP。` },
+          { id: 'bs_holy_shield', tier: 4, name: '神聖之盾', type: '輔助', icon: '🔰', maxLv: 30, desc: (lv) => `創造防護罩為全隊抵擋異常狀態 ${10 + lv} 秒。` }
+        ]
+      },
+
+      arch_mage_fp: {
+        id: 'arch_mage_fp',
+        name: '火毒大魔導',
+        faction: 'adventurer',
+        category: '冒險家・法師',
+        icon: '🔥',
+        maxLevel: 200,
+        desc: '擅長致命劇毒越級打怪與全畫面火流星轟炸的極致輸出法師。',
+        tiers: [
+          { tier: 1, name: '一轉・法師' },
+          { tier: 2, name: '二轉・火毒巫師' },
+          { tier: 3, name: '三轉・火毒魔導士' },
+          { tier: 4, name: '四轉・火毒大魔導' }
+        ],
+        presets: [
+          {
+            name: '200等 火流星練功型',
+            level: 200,
+            note: '三轉滿魔力激發與致命毒霧；四轉優先點滿火流星、火魔召喚與魔力無限，是單刷高經驗地圖的王者。',
+            skills: {
+              fp_mp_rec: 17, fp_mp_inc: 10, fp_magic_guard: 20, fp_magic_claw: 20,
+              fp_teleport: 20, fp_meditation: 20, fp_fire_arrow: 30, fp_poison_breath: 30, fp_slow: 20,
+              fp_element_amp: 30, fp_explosion: 30, fp_poison_mist: 30, fp_seal: 20, fp_magic_comp: 30,
+              fp_meteor: 30, fp_ifrit: 30, fp_paralyze: 30, fp_maple_warrior: 30, fp_infinity: 30, fp_fire_demon: 30, fp_mana_reflection: 30
+            }
+          }
+        ],
+        skills: [
+          { id: 'fp_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
+          { id: 'fp_mp_inc', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { fp_mp_rec: 5 }, desc: (lv) => `升級時額外增加最大 MP 上限 +${lv * 2}。` },
+          { id: 'fp_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `將 ${10 + lv * 3.5}% 傷害轉由 MP 承受。` },
+          { id: 'fp_magic_claw', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `發射 2 發魔法彈攻擊單體，基礎威力 ${30 + lv * 1.5}。` },
+          { id: 'fp_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `朝指定方向瞬間移動。` },
+          { id: 'fp_meditation', tier: 2, name: '精神強化', type: '輔助', icon: '🧘', maxLv: 20, desc: (lv) => `提升全隊魔法攻擊力 +${lv}。` },
+          { id: 'fp_fire_arrow', tier: 2, name: '火焰箭', type: '主動', icon: '🏹', maxLv: 30, desc: (lv) => `高威力單體火屬性魔法，基礎威力 ${70 + lv * 2}。` },
+          { id: 'fp_poison_breath', tier: 2, name: '毒霧', type: '主動', icon: '🧪', maxLv: 30, desc: (lv) => `發射毒球使敵人持續中毒扣血，基礎威力 ${45 + lv}。` },
+          { id: 'fp_slow', tier: 2, name: '緩速術', type: '輔助', icon: '🐌', maxLv: 20, desc: (lv) => `降低周圍敵人移動速度 ${lv * 2}%。` },
+          { id: 'fp_element_amp', tier: 3, name: '魔力激發', type: '被動', icon: '📈', maxLv: 30, desc: (lv) => `魔法最終傷害提升至 ${100 + Math.floor(lv * 1.33)}%（最大 140%）。` },
+          { id: 'fp_explosion', tier: 3, name: '末日烈焰', type: '主動', icon: '💥', maxLv: 30, desc: (lv) => `以自身為中心引爆火焰攻擊最多 6 名敵人，基礎威力 ${80 + lv * 1.5}。` },
+          { id: 'fp_poison_mist', tier: 3, name: '致命毒霧', type: '主動', icon: '☠️', maxLv: 30, desc: (lv) => `在地面生成大範圍毒霧，使怪物每秒按比例扣血。` },
+          { id: 'fp_seal', tier: 3, name: '封印術', type: '輔助', icon: '🤐', maxLv: 20, desc: (lv) => `使範圍內怪物無法施放技能。` },
+          { id: 'fp_magic_comp', tier: 3, name: '火毒合擊', type: '主動', icon: '🔥', maxLv: 30, desc: (lv) => `同時具備火與毒雙屬性的單體強攻，基礎威力 ${110 + lv * 1.5}。` },
+          { id: 'fp_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'fp_meteor', tier: 4, name: '火流星', type: '主動', icon: '☄️', maxLv: 30, desc: (lv) => `召喚隕石轟炸全畫面最多 15 名敵人，基礎威力 ${480 + lv * 9}。` },
+          { id: 'fp_ifrit', tier: 4, name: '火魔召喚', type: '召喚', icon: '👹', maxLv: 30, desc: (lv) => `召喚火之魔神伊弗利特協助攻擊，威力 ${200 + lv * 3.5}。` },
+          { id: 'fp_paralyze', tier: 4, name: '劇毒麻痺', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `單體高傷毒素魔法，基礎威力 ${180 + lv * 3}。` },
+          { id: 'fp_infinity', tier: 4, name: '魔力無限', type: '輔助', icon: '♾️', maxLv: 30, desc: (lv) => `${10 + lv} 秒內技能不消耗 MP。` },
+          { id: 'fp_fire_demon', tier: 4, name: '冰火魔神', type: '主動', icon: '🔥', maxLv: 30, desc: (lv) => `召喚魔神靈體攻擊最多 6 名敵人並賦予弱點屬性。` },
+          { id: 'fp_mana_reflection', tier: 4, name: '魔法反擊', type: '輔助', icon: '🪞', maxLv: 30, desc: (lv) => `機率將敵人的魔法攻擊反彈回去。` }
+        ]
+      },
+
+      arch_mage_il: {
+        id: 'arch_mage_il',
+        name: '冰雷大魔導',
+        faction: 'adventurer',
+        category: '冒險家・法師',
+        icon: '❄️',
+        maxLevel: 200,
+        desc: '控場與連鎖閃電專家，具備冰凍安全輸出與大範圍暴風雪清怪能力。',
+        tiers: [
+          { tier: 1, name: '一轉・法師' },
+          { tier: 2, name: '二轉・冰雷巫師' },
+          { tier: 3, name: '三轉・冰雷魔導士' },
+          { tier: 4, name: '四轉・冰雷大魔導' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'il_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
+          { id: 'il_mp_inc', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { il_mp_rec: 5 }, desc: (lv) => `升級時額外增加最大 MP 上限 +${lv * 2}。` },
+          { id: 'il_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `將 ${10 + lv * 3.5}% 傷害轉由 MP 承受。` },
+          { id: 'il_magic_claw', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `發射 2 發魔法彈攻擊單體，基礎威力 ${30 + lv * 1.5}。` },
+          { id: 'il_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `朝指定方向瞬間移動。` },
+          { id: 'il_meditation', tier: 2, name: '精神強化', type: '輔助', icon: '🧘', maxLv: 20, desc: (lv) => `提升全隊魔法攻擊力 +${lv}。` },
+          { id: 'il_cold_beam', tier: 2, name: '冰錐術', type: '主動', icon: '🧊', maxLv: 30, desc: (lv) => `單體冰屬性魔法並凍結敵人，基礎威力 ${65 + lv * 2}。` },
+          { id: 'il_thunder_bolt', tier: 2, name: '落雷槍', type: '主動', icon: '🌩️', maxLv: 30, desc: (lv) => `範圍雷電攻擊最多 6 名敵人，基礎威力 ${40 + lv}。` },
+          { id: 'il_element_amp', tier: 3, name: '魔力激發', type: '被動', icon: '📈', maxLv: 30, desc: (lv) => `魔法最終傷害提升至 ${100 + Math.floor(lv * 1.33)}%。` },
+          { id: 'il_ice_strike', tier: 3, name: '冰風暴', type: '主動', icon: '❄️', maxLv: 30, desc: (lv) => `凍結周圍最多 6 名敵人，基礎威力 ${70 + lv * 1.5}。` },
+          { id: 'il_thunder_spear', tier: 3, name: '落雷凝聚', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `單體高傷雷屬性魔法，基礎威力 ${110 + lv * 2}。` },
+          { id: 'il_blizzard', tier: 4, name: '暴風雪', type: '主動', icon: '🌨️', maxLv: 30, desc: (lv) => `召喚全畫面暴風雪攻擊最多 15 名敵人並凍結，威力 ${470 + lv * 9}。` },
+          { id: 'il_chain_lightning', tier: 4, name: '閃電連擊', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `連鎖彈跳攻擊最多 6 名敵人的高傷閃電，威力 ${180 + lv * 3}。` },
+          { id: 'il_elquines', tier: 4, name: '冰魔召喚', type: '召喚', icon: '❄️', maxLv: 30, desc: (lv) => `召喚冰之魔神埃爾奎納斯協助凍結與攻擊敵人。` },
+          { id: 'il_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+        ]
+      },
+
+      hero: {
+        id: 'hero',
+        name: '英雄',
+        faction: 'adventurer',
+        category: '冒險家・戰士',
+        icon: '⚔️',
+        maxLevel: 200,
+        desc: '以進階鬥氣與無雙劍舞稱霸近戰的劍斧大師，單體與小範圍輸出極為穩定。',
+        tiers: [
+          { tier: 1, name: '一轉・劍士' },
+          { tier: 2, name: '二轉・狂戰士' },
+          { tier: 3, name: '三轉・十字軍' },
+          { tier: 4, name: '四轉・英雄' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'hr_hp_inc', tier: 1, name: '生命淨化/擴展', type: '被動', icon: '❤️', maxLv: 10, desc: (lv) => `升級時額外增加最大 HP 上限。` },
+          { id: 'hr_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `單體強力斬擊，傷害 ${160 + lv * 5}%。` },
+          { id: 'hr_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, req: { hr_power_strike: 1 }, desc: (lv) => `前方最多 6 名敵人範圍斬擊，傷害 ${85 + lv * 2.5}%。` },
+          { id: 'hr_sword_mastery', tier: 2, name: '精準之劍', type: '被動', icon: '🗡️', maxLv: 20, desc: (lv) => `劍類熟練度提升至 ${10 + lv * 2.5}%，命中率 +${lv}。` },
+          { id: 'hr_sword_booster', tier: 2, name: '快速之劍', type: '輔助', icon: '⚡', maxLv: 20, req: { hr_sword_mastery: 5 }, desc: (lv) => `提升劍類武器攻擊速度 2 階段。` },
+          { id: 'hr_rage', tier: 2, name: '激勵', type: '輔助', icon: '🔥', maxLv: 20, desc: (lv) => `提升全隊物理攻擊力 +${Math.ceil(lv * 0.6)}。` },
+          { id: 'hr_combo', tier: 3, name: '鬥氣集中', type: '輔助', icon: '🔆', maxLv: 30, desc: (lv) => `累積鬥氣珠大幅提升最終傷害。` },
+          { id: 'hr_panic', tier: 3, name: '黑暗之劍', type: '主動', icon: '🌑', maxLv: 30, req: { hr_combo: 1 }, desc: (lv) => `消耗鬥氣造成高傷並機率致盲敵人。` },
+          { id: 'hr_coma', tier: 3, name: '昏迷之劍', type: '主動', icon: '💫', maxLv: 30, req: { hr_combo: 1 }, desc: (lv) => `消耗鬥氣攻擊周圍敵人並機率暈眩。` },
+          { id: 'hr_brandish', tier: 4, name: '無雙劍舞', type: '主動', icon: '⚔️', maxLv: 30, desc: (lv) => `對前方最多 3 名敵人進行 2 次強力連斬，每擊 ${190 + lv * 2.5}% 傷害。` },
+          { id: 'hr_adv_combo', tier: 4, name: '進階鬥氣', type: '被動', icon: '👑', maxLv: 30, req: { hr_combo: 30 }, desc: (lv) => `鬥氣珠上限增至 10 顆，大幅增強傷害倍率。` },
+          { id: 'hr_rush', tier: 4, name: '突進', type: '主動', icon: '💨', maxLv: 30, desc: (lv) => `向前衝鋒推怪，最多推動 15 名敵人。` },
+          { id: 'hr_stance', tier: 4, name: '格擋', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${30 + lv * 3}% 機率受到攻擊時不會被擊退。` },
+          { id: 'hr_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+        ]
+      },
+
+      paladin: {
+        id: 'paladin',
+        name: '聖騎士',
+        faction: 'adventurer',
+        category: '冒險家・戰士',
+        icon: '🛡️',
+        maxLevel: 200,
+        desc: '精通火、冰、雷、聖四大屬性劍術與極致防禦的屬性大師。',
+        tiers: [
+          { tier: 1, name: '一轉・劍士' },
+          { tier: 2, name: '二轉・見習騎士' },
+          { tier: 3, name: '三轉・騎士' },
+          { tier: 4, name: '四轉・聖騎士' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'pl_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `單體強力斬擊，傷害 ${160 + lv * 5}%。` },
+          { id: 'pl_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `範圍斬擊，傷害 ${85 + lv * 2.5}%。` },
+          { id: 'pl_mastery', tier: 2, name: '精準之劍/棍', type: '被動', icon: '🗡️', maxLv: 20, desc: (lv) => `熟練度提升至 ${10 + lv * 2.5}%。` },
+          { id: 'pl_booster', tier: 2, name: '快速之劍/棍', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻擊速度提升 2 階段。` },
+          { id: 'pl_fire_charge', tier: 3, name: '烈焰之劍', type: '輔助', icon: '🔥', maxLv: 30, desc: (lv) => `賦予武器火屬性，攻擊力提升至 ${105 + lv}%。` },
+          { id: 'pl_ice_charge', tier: 3, name: '寒冰之劍', type: '輔助', icon: '❄️', maxLv: 30, desc: (lv) => `賦予武器冰屬性並凍結敵人。` },
+          { id: 'pl_lightning_charge', tier: 3, name: '雷鳴之劍', type: '輔助', icon: '⚡', maxLv: 30, desc: (lv) => `賦予武器雷屬性，攻擊力提升至 ${110 + lv}%。` },
+          { id: 'pl_holy_charge', tier: 4, name: '聖靈之劍', type: '輔助', icon: '✝️', maxLv: 30, desc: (lv) => `賦予武器神聖屬性，大幅提升對不死與惡魔傷害。` },
+          { id: 'pl_blast', tier: 4, name: '騎士衝擊波', type: '主動', icon: '💥', maxLv: 30, desc: (lv) => `極致單體屬性爆發斬擊，傷害 ${400 + lv * 6}%。` },
+          { id: 'pl_heavens_hammer', tier: 4, name: '萬佛歸宗', type: '主動', icon: '🔨', maxLv: 30, desc: (lv) => `召喚神聖巨錘轟擊全畫面最多 15 名敵人。` },
+          { id: 'pl_stance', tier: 4, name: '格擋', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${30 + lv * 3}% 機率不被擊退。` }
+        ]
+      },
+
+      dark_knight: {
+        id: 'dark_knight',
+        name: '黑騎士',
+        faction: 'adventurer',
+        category: '冒險家・戰士',
+        icon: '🐉',
+        maxLevel: 200,
+        desc: '擁有聖火提升隊伍血量上限，並能在低血量時觸發暗之靈魂暴走槍連擊。',
+        tiers: [
+          { tier: 1, name: '一轉・劍士' },
+          { tier: 2, name: '二轉・槍騎兵' },
+          { tier: 3, name: '三轉・龍騎士' },
+          { tier: 4, name: '四轉・黑騎士' }
+        ],
+        presets: [
+          {
+            name: '200等 暗之靈魂打王型',
+            level: 200,
+            note: '二轉聖火必滿；三轉槍連擊與無雙矛必滿；四轉核心暗之靈魂、格擋與暗之靈魂的祝福，控血輸出冠絕全場。',
+            skills: {
+              dk_hp_inc: 10, dk_power_strike: 20, dk_slash_blast: 20, dk_iron_body: 11,
+              dk_spear_mastery: 20, dk_spear_booster: 20, dk_hyper_body: 30, dk_iron_will: 20, dk_final_attack: 30,
+              dk_spear_crusher: 30, dk_dragon_fury: 30, dk_dragon_roar: 30, dk_sac: 30, dk_element_res: 20,
+              dk_berserk: 30, dk_beholder: 10, dk_beholder_heal: 25, dk_beholder_buff: 25, dk_stance: 30, dk_rush: 30, dk_maple_warrior: 30
+            }
+          }
+        ],
+        skills: [
+          { id: 'dk_hp_inc', tier: 1, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, desc: (lv) => `升級時額外增加最大 HP 上限。` },
+          { id: 'dk_iron_body', tier: 1, name: '自身強化', type: '輔助', icon: '🛡️', maxLv: 20, desc: (lv) => `提升物理防禦力 +${lv * 2}。` },
+          { id: 'dk_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `單體強力攻擊，傷害 ${160 + lv * 5}%。` },
+          { id: 'dk_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `範圍橫掃攻擊，傷害 ${85 + lv * 2.5}%。` },
+          { id: 'dk_spear_mastery', tier: 2, name: '精準之槍', type: '被動', icon: '🔱', maxLv: 20, desc: (lv) => `槍類武器熟練度提升至 ${10 + lv * 2.5}%。` },
+          { id: 'dk_spear_booster', tier: 2, name: '快速之槍', type: '輔助', icon: '⚡', maxLv: 20, req: { dk_spear_mastery: 5 }, desc: (lv) => `提升槍類武器攻擊速度 2 階段。` },
+          { id: 'dk_iron_will', tier: 2, name: '禦魔陣', type: '輔助', icon: '🔰', maxLv: 20, desc: (lv) => `提升全隊物理與魔法防禦力 +${lv}。` },
+          { id: 'dk_hyper_body', tier: 2, name: '神聖之火', type: '輔助', icon: '🔥', maxLv: 30, req: { dk_iron_will: 3 }, desc: (lv) => `全隊最大 HP 與 MP 上限提升 +${lv * 2}%（滿級 +60%）。` },
+          { id: 'dk_final_attack', tier: 2, name: '終極之槍', type: '被動', icon: '💥', maxLv: 30, desc: (lv) => `攻擊時有機率追加終極一擊。` },
+          { id: 'dk_spear_crusher', tier: 3, name: '槍連擊', type: '主動', icon: '🔱', maxLv: 30, desc: (lv) => `對前方最多 3 名敵人進行 3 次高速突刺，每擊 ${130 + lv * 1.5}% 傷害。` },
+          { id: 'dk_dragon_fury', tier: 3, name: '無雙矛/槍', type: '主動', icon: '🐲', maxLv: 30, desc: (lv) => `大範圍橫掃最多 6 名敵人，傷害 ${190 + lv * 2}%。` },
+          { id: 'dk_dragon_roar', tier: 3, name: '龍咆哮', type: '主動', icon: '📢', maxLv: 30, desc: (lv) => `消耗 HP 震撼全畫面最多 15 名敵人，基礎威力 ${150 + lv * 3}。` },
+          { id: 'dk_sac', tier: 3, name: '龍之獻祭', type: '主動', icon: '🩸', maxLv: 30, desc: (lv) => `犧牲 HP 對單體無視防禦重擊。` },
+          { id: 'dk_element_res', tier: 3, name: '屬性抗性', type: '被動', icon: '💠', maxLv: 20, desc: (lv) => `所有屬性抗性提升 +${lv * 2}%。` },
+          { id: 'dk_berserk', tier: 4, name: '暗之靈魂', type: '被動', icon: '😈', maxLv: 30, desc: (lv) => `HP 低於 ${20 + Math.floor(lv * 0.67)}% 時，所有攻擊最終傷害提升至 ${120 + Math.floor(lv * 2.67)}%（滿級 200%）。` },
+          { id: 'dk_beholder', tier: 4, name: '暗之靈魂召喚', type: '召喚', icon: '👁️', maxLv: 10, desc: (lv) => `召喚暗之靈魂隨行，提供武器熟練度加成。` },
+          { id: 'dk_beholder_heal', tier: 4, name: '暗之靈魂的治癒', type: '被動', icon: '💚', maxLv: 25, req: { dk_beholder: 1 }, desc: (lv) => `靈魂定期為主人恢復 HP，方便精準控血。` },
+          { id: 'dk_beholder_buff', tier: 4, name: '暗之靈魂的祝福', type: '被動', icon: '✨', maxLv: 25, req: { dk_beholder: 1 }, desc: (lv) => `靈魂定期施放物理攻擊力、防禦、命中、迴避增益。` },
+          { id: 'dk_stance', tier: 4, name: '格擋', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${30 + lv * 3}% 機率不被擊退。` },
+          { id: 'dk_rush', tier: 4, name: '突進', type: '主動', icon: '💨', maxLv: 30, desc: (lv) => `向前衝鋒推怪。` },
+          { id: 'dk_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+        ]
+      },
+
+      bowmaster: {
+        id: 'bowmaster',
+        name: '箭神',
+        faction: 'adventurer',
+        category: '冒險家・弓箭手',
+        icon: '🏹',
+        maxLevel: 200,
+        desc: '擁有全職業最強組隊暴擊增益「會心之眼」與極速連射「暴風神射」的遠程王者。',
+        tiers: [
+          { tier: 1, name: '一轉・弓箭手' },
+          { tier: 2, name: '二轉・獵人' },
+          { tier: 3, name: '三轉・遊俠' },
+          { tier: 4, name: '四轉・箭神' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'bm_eye', tier: 1, name: '百步穿楊', type: '被動', icon: '👁️', maxLv: 8, desc: (lv) => `射程 +${lv * 15}。` },
+          { id: 'bm_crit', tier: 1, name: '霸王箭', type: '被動', icon: '🎯', maxLv: 20, req: { bm_eye: 3 }, desc: (lv) => `暴擊率 +${lv * 2}%。` },
+          { id: 'bm_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `連續射出 2 箭。` },
+          { id: 'bm_mastery', tier: 2, name: '精準之弓', type: '被動', icon: '📐', maxLv: 20, desc: (lv) => `弓熟練度提升至 ${10 + lv * 2.5}%。` },
+          { id: 'bm_booster', tier: 2, name: '快速之弓', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻速提升 2 階段。` },
+          { id: 'bm_soul_arrow', tier: 2, name: '無形之箭', type: '輔助', icon: '♾️', maxLv: 20, desc: (lv) => `不消耗箭矢。` },
+          { id: 'bm_arrow_bomb', tier: 2, name: '炸裂箭', type: '主動', icon: '💣', maxLv: 30, desc: (lv) => `範圍爆炸並機率暈眩最多 6 名敵人。` },
+          { id: 'bm_strafe', tier: 3, name: '四連箭', type: '主動', icon: '🏹', maxLv: 30, desc: (lv) => `連續射出 4 支箭矢。` },
+          { id: 'bm_arrow_rain', tier: 3, name: '箭雨', type: '主動', icon: '🌧️', maxLv: 30, desc: (lv) => `範圍箭雨攻擊周圍敵人。` },
+          { id: 'bm_puppet', tier: 3, name: '替身術', type: '召喚', icon: '🪆', maxLv: 20, desc: (lv) => `召喚稻草人吸引怪物。` },
+          { id: 'bm_sharp_eyes', tier: 4, name: '會心之眼', type: '輔助', icon: '👁️', maxLv: 30, desc: (lv) => `全隊暴擊率 +${Math.ceil(lv/2)}%（滿級 +15%），暴擊傷害大幅提升 +${110 + lv}%！` },
+          { id: 'bm_hurricane', tier: 4, name: '暴風神射', type: '主動', icon: '🌀', maxLv: 30, desc: (lv) => `每秒射出超高速狂風箭矢，每發 ${70 + lv}% 傷害。` },
+          { id: 'bm_bow_expert', tier: 4, name: '弓術精通', type: '被動', icon: '👑', maxLv: 30, req: { bm_mastery: 20 }, desc: (lv) => `熟練度提升至 90%，物理攻擊力 +${Math.ceil(lv/3)}。` },
+          { id: 'bm_phoenix', tier: 4, name: '火鳳凰召喚', type: '召喚', icon: '🔥', maxLv: 30, desc: (lv) => `召喚火鳳凰協助攻擊。` },
+          { id: 'bm_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+        ]
+      },
+
+      marksman: {
+        id: 'marksman',
+        name: '神射手',
+        faction: 'adventurer',
+        category: '冒險家・弓箭手',
+        icon: '🎯',
+        maxLevel: 200,
+        desc: '擅長超遠距離貫穿與一擊必殺狙擊的重弩射手，同樣擁有會心之眼。',
+        tiers: [
+          { tier: 1, name: '一轉・弓箭手' },
+          { tier: 2, name: '二轉・弩弓手' },
+          { tier: 3, name: '三轉・狙擊手' },
+          { tier: 4, name: '四轉・神射手' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'mm_eye', tier: 1, name: '百步穿楊', type: '被動', icon: '👁️', maxLv: 8, desc: (lv) => `射程 +${lv * 15}。` },
+          { id: 'mm_crit', tier: 1, name: '霸王箭', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `暴擊率 +${lv * 2}%。` },
+          { id: 'mm_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `連續射出 2 箭。` },
+          { id: 'mm_mastery', tier: 2, name: '精準之弩', type: '被動', icon: '📐', maxLv: 20, desc: (lv) => `弩熟練度提升。` },
+          { id: 'mm_booster', tier: 2, name: '快速之弩', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻速提升 2 階段。` },
+          { id: 'mm_iron_arrow', tier: 2, name: '穿透箭', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `直線貫穿多名敵人。` },
+          { id: 'mm_strafe', tier: 3, name: '四連箭', type: '主動', icon: '🏹', maxLv: 30, desc: (lv) => `連續射出 4 支弩箭。` },
+          { id: 'mm_eruption', tier: 3, name: '升龍弩', type: '主動', icon: '🐉', maxLv: 30, desc: (lv) => `範圍攻擊周圍敵人。` },
+          { id: 'mm_sharp_eyes', tier: 4, name: '會心之眼', type: '輔助', icon: '👁️', maxLv: 30, desc: (lv) => `全隊暴擊率 +15%、暴擊傷害大幅提升。` },
+          { id: 'mm_snipe', tier: 4, name: '必殺狙擊', type: '主動', icon: '💀', maxLv: 30, desc: (lv) => `對單體造成毀滅性固定高傷，冷卻時間隨等級大幅縮短至 ${30 - Math.floor(lv * 0.83)} 秒。` },
+          { id: 'mm_piercing', tier: 4, name: '光速神弩', type: '主動', icon: '💫', maxLv: 30, desc: (lv) => `蓄力射出超強貫穿光箭，每多貫穿一隻怪物傷害倍增。` },
+          { id: 'mm_frostprey', tier: 4, name: '銀鷹/冰鳳凰召喚', type: '召喚', icon: '❄️', maxLv: 30, desc: (lv) => `召喚冰鳳凰凍結並攻擊敵人。` }
+        ]
+      },
+
+      shadower: {
+        id: 'shadower',
+        name: '暗影神偷',
+        faction: 'adventurer',
+        category: '冒險家・盜賊',
+        icon: '🗡️',
+        maxLevel: 200,
+        desc: '以楓幣炸彈、瞬步連擊與煙霧彈守護隊友的近戰短刀大師。',
+        tiers: [
+          { tier: 1, name: '一轉・盜賊' },
+          { tier: 2, name: '二轉・俠客' },
+          { tier: 3, name: '三轉・神偷' },
+          { tier: 4, name: '四轉・暗影神偷' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'sh_nimble', tier: 1, name: '幻化術', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `命中與迴避 +${lv}。` },
+          { id: 'sh_double_stab', tier: 1, name: '劈空斬', type: '主動', icon: '🗡️', maxLv: 20, desc: (lv) => `連續刺擊 2 次。` },
+          { id: 'sh_dark_sight', tier: 1, name: '隱身術', type: '輔助', icon: '👤', maxLv: 20, desc: (lv) => `隱身迴避接觸傷害。` },
+          { id: 'sh_mastery', tier: 2, name: '精準之刀', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `短刀熟練度提升。` },
+          { id: 'sh_booster', tier: 2, name: '快速之刀', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `短刀攻速提升 2 階段。` },
+          { id: 'sh_haste', tier: 2, name: '速度激發', type: '輔助', icon: '👟', maxLv: 20, desc: (lv) => `全隊移動速度 +40、跳躍 +20。` },
+          { id: 'sh_savage_blow', tier: 2, name: '迴旋斬', type: '主動', icon: '🌀', maxLv: 30, desc: (lv) => `高速連續砍擊 6 次。` },
+          { id: 'sh_meso_explosion', tier: 3, name: '楓幣炸彈', type: '主動', icon: '💰', maxLv: 30, desc: (lv) => `引爆地面楓幣造成巨額爆發傷害。` },
+          { id: 'sh_meso_guard', tier: 3, name: '楓幣護盾', type: '輔助', icon: '🛡️', maxLv: 20, desc: (lv) => `消耗楓幣減免 50% 受到的傷害。` },
+          { id: 'sh_assassinate', tier: 4, name: '暗殺', type: '主動', icon: '💀', maxLv: 30, desc: (lv) => `隱身狀態施放，連續 4 擊並以高暴擊終結技收尾。` },
+          { id: 'sh_boomerang', tier: 4, name: '瞬步連擊', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `高速穿梭於最多 4 名敵人之間造成 2 次超高傷並暈眩。` },
+          { id: 'sh_smokescreen', tier: 4, name: '煙霧彈', type: '輔助', icon: '🌫️', maxLv: 30, desc: (lv) => `釋放煙霧使範圍內隊友完全免疫一切傷害！` }
+        ]
+      },
+
+      night_lord: {
+        id: 'night_lord',
+        name: '夜使者',
+        faction: 'adventurer',
+        category: '冒險家・盜賊',
+        icon: '🌟',
+        maxLevel: 200,
+        desc: '影分身搭配三飛閃的極致單體王團輸出王者，機動性與爆發力無與倫比。',
+        tiers: [
+          { tier: 1, name: '一轉・盜賊' },
+          { tier: 2, name: '二轉・刺客' },
+          { tier: 3, name: '三轉・暗殺者' },
+          { tier: 4, name: '四轉・夜使者' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'nl_nimble', tier: 1, name: '幻化術', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `命中與迴避 +${lv}。` },
+          { id: 'nl_keen_eyes', tier: 1, name: '鷹之眼', type: '被動', icon: '🦅', maxLv: 8, desc: (lv) => `飛鏢射程 +${lv * 25}。` },
+          { id: 'nl_lucky_seven', tier: 1, name: '雙飛斬', type: '主動', icon: '🌟', maxLv: 20, desc: (lv) => `投擲 2 枚飛鏢。` },
+          { id: 'nl_mastery', tier: 2, name: '精準暗器', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `拳套熟練度提升。` },
+          { id: 'nl_crit', tier: 2, name: '強力投擲', type: '被動', icon: '💥', maxLv: 30, desc: (lv) => `暴擊率 +50%、暴擊傷害大幅提升。` },
+          { id: 'nl_haste', tier: 2, name: '速度激發', type: '輔助', icon: '👟', maxLv: 20, desc: (lv) => `全隊移速 +40、跳躍 +20。` },
+          { id: 'nl_shadow_partner', tier: 3, name: '影分身', type: '輔助', icon: '👥', maxLv: 30, desc: (lv) => `召喚分身複製技能造成 50% 額外傷害。` },
+          { id: 'nl_flash_jump', tier: 3, name: '二段跳', type: '主動', icon: '🦘', maxLv: 20, desc: (lv) => `在空中再次跳躍高速移動。` },
+          { id: 'nl_triple_throw', tier: 4, name: '三飛閃', type: '主動', icon: '✨', maxLv: 30, desc: (lv) => `連續投擲 3 枚飛鏢（搭配影分身共 6 枚），每枚 ${120 + lv}% 傷害。` },
+          { id: 'nl_shadow_shifter', tier: 4, name: '絕對領域/假動作', type: '被動', icon: '👤', maxLv: 30, desc: (lv) => `${10 + lv}% 機率以木頭人替身完全迴避攻擊。` },
+          { id: 'nl_venom', tier: 4, name: '飛毒殺', type: '被動', icon: '☠️', maxLv: 30, desc: (lv) => `攻擊附帶高傷毒素持續傷害。` },
+          { id: 'nl_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+        ]
+      },
+
+      buccaneer: {
+        id: 'buccaneer',
+        name: '拳霸',
+        faction: 'adventurer',
+        category: '冒險家・海盜',
+        icon: '👊',
+        maxLevel: 200,
+        desc: '擁有「最終極速」與「時間置換（重置全隊冷卻）」的頂級格鬥家。',
+        tiers: [
+          { tier: 1, name: '一轉・海盜' },
+          { tier: 2, name: '二轉・打手' },
+          { tier: 3, name: '三轉・格鬥家' },
+          { tier: 4, name: '四轉・拳霸' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'bc_straight', tier: 1, name: '半月踢', type: '主動', icon: '👊', maxLv: 20, desc: (lv) => `單體重拳。` },
+          { id: 'bc_somersault', tier: 1, name: '旋風斬', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `範圍迴旋踢。` },
+          { id: 'bc_mastery', tier: 2, name: '精準之拳', type: '被動', icon: '🥊', maxLv: 20, desc: (lv) => `指虎熟練度提升。` },
+          { id: 'bc_booster', tier: 2, name: '致命快打', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻速提升 2 階段。` },
+          { id: 'bc_energy_charge', tier: 3, name: '能量獲得', type: '被動', icon: '🔋', maxLv: 40, desc: (lv) => `滿能量獲得霸體與高額攻擊力。` },
+          { id: 'bc_transformation', tier: 3, name: '變身', type: '輔助', icon: '👹', maxLv: 20, desc: (lv) => `變身為鬥神強化防禦與技能。` },
+          { id: 'bc_speed_infusion', tier: 4, name: '最終極速', type: '輔助', icon: '🚀', maxLv: 20, desc: (lv) => `提升全隊所有武器攻擊速度 2 階段！` },
+          { id: 'bc_time_leap', tier: 4, name: '時間置換', type: '輔助', icon: '⏳', maxLv: 30, desc: (lv) => `立即重置全體隊友的所有技能冷卻時間（包含復活術）！` },
+          { id: 'bc_barrage', tier: 4, name: '閃連殺', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `無敵判定 6 連擊超高爆發體術。` },
+          { id: 'bc_dragon_strike', tier: 4, name: '魔龍降臨', type: '主動', icon: '🐉', maxLv: 30, desc: (lv) => `召喚能量巨龍轟擊最多 6 名敵人，無敵動作且高傷。` }
+        ]
+      },
+
+      corsair: {
+        id: 'corsair',
+        name: '槍神',
+        faction: 'adventurer',
+        category: '冒險家・海盜',
+        icon: '🏴‍☠️',
+        maxLevel: 200,
+        desc: '搭乘海盜船進行瞬發大砲轟炸與瞬迅雷連射的高機動火力手。',
+        tiers: [
+          { tier: 1, name: '一轉・海盜' },
+          { tier: 2, name: '二轉・槍手' },
+          { tier: 3, name: '三轉・神槍手' },
+          { tier: 4, name: '四轉・槍神' }
+        ],
+        presets: [],
+        skills: [
+          { id: 'cs_double_fire', tier: 1, name: '雙子星攻擊', type: '主動', icon: '🔫', maxLv: 20, desc: (lv) => `連射 2 發子彈。` },
+          { id: 'cs_mastery', tier: 2, name: '精準之槍', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `火槍熟練度提升。` },
+          { id: 'cs_booster', tier: 2, name: '迅雷再起', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `火槍攻速提升 2 階段。` },
+          { id: 'cs_wings', tier: 2, name: '海鷗特戰隊/飛翼', type: '主動', icon: '🕊️', maxLv: 10, desc: (lv) => `滑翔與空中滯留移動。` },
+          { id: 'cs_burst_fire', tier: 3, name: '三連射', type: '主動', icon: '💥', maxLv: 20, desc: (lv) => `連射 3 發子彈。` },
+          { id: 'cs_octopus', tier: 3, name: '章魚炮台', type: '召喚', icon: '🐙', maxLv: 30, desc: (lv) => `設置章魚機槍自動射擊敵人。` },
+          { id: 'cs_battleship', tier: 4, name: '海盜船', type: '輔助', icon: '🚢', maxLv: 10, desc: (lv) => `搭乘武裝海盜船，大幅提升防禦並可使用船載主砲。` },
+          { id: 'cs_cannon', tier: 4, name: '海盜船加農砲', type: '主動', icon: '💣', maxLv: 30, req: { cs_battleship: 1 }, desc: (lv) => `海盜船專用，發射 4 發超高速毀滅砲彈。` },
+          { id: 'cs_torpedo', tier: 4, name: '海盜船魚雷', type: '主動', icon: '🚀', maxLv: 30, req: { cs_battleship: 1 }, desc: (lv) => `海盜船專用，發射貫穿魚雷攻擊最多 6 名敵人。` },
+          { id: 'cs_rapid_fire', tier: 4, name: '瞬・迅雷', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `如機關槍般瘋狂掃射單一敵人。` }
+        ]
+      }
+    };
+
+    /**
+     * ============================================================================
+     * 應用程式狀態管理 (State)
+     * ============================================================================
+     */
+    const EMBLEM_BASE = 'https://jamox80.github.io/maplestory-skill-simulator/emblems/';
+    const JOB_EMBLEMS = {
+      bishop: 'Bishop_color.png',
+      arch_mage_fp: 'archmage_fp_color.png',
+      arch_mage_il: 'archmage_il_color.png',
+      hero: 'Hero_color.png',
+      paladin: 'Paladin_color.png',
+      dark_knight: 'DarkKnight_color.png',
+      bowmaster: 'Bowmaster_color.png',
+      marksman: 'Marksman_color.png',
+      shadower: 'Shadower_color.png',
+      night_lord: 'NightLord_color.png',
+      buccaneer: 'Buccaneer_color.png',
+      corsair: 'Corsair_color.png'
+    };
+
+    function jobMarkHtml(job) {
+      const file = JOB_EMBLEMS[job.id];
+      if (file) return `<img src="${EMBLEM_BASE}${file}" alt="${job.name}">`;
+      return `<span class="job-emoji">${job.icon}</span>`;
+    }
+
+    const SKILL_ICON_BASE = "https://jamox80.github.io/maplestory-skill-simulator/";
+    const SKILL_ICONS = {
+      dw_hp_rec: 'icons/soulmaster/dw_hp_rec.png',
+      dw_hp_boost: 'icons/soulmaster/dw_hp_boost.png',
+      dw_soul: 'icons/soulmaster/dw_soul.png',
+      dw_iron: 'icons/soulmaster/dw_iron.png',
+      dw_power: 'icons/soulmaster/dw_power.png',
+      dw_slash: 'icons/soulmaster/dw_slash.png',
+      dw_mastery: 'icons/soulmaster/dw_mastery.png',
+      dw_booster: 'icons/soulmaster/dw_booster.png',
+      dw_final: 'icons/soulmaster/dw_final.png',
+      dw_guard: 'icons/soulmaster/dw_guard.png',
+      dw_blade: 'icons/soulmaster/dw_blade.png',
+      dw_rush: 'icons/soulmaster/dw_rush.png',
+      dw_mp_rec: 'icons/soulmaster/dw_mp_rec.png',
+      dw_train: 'icons/soulmaster/dw_train.png',
+      dw_fusion: 'icons/soulmaster/dw_fusion.png',
+      dw_adv_soul: 'icons/soulmaster/dw_adv_soul.png',
+      dw_combo: 'icons/soulmaster/dw_combo.png',
+      dw_cut: 'icons/soulmaster/dw_cut.png',
+      dw_holy: 'icons/soulmaster/dw_holy.png',
+      dw_cygnus: 'icons/soulmaster/dw_cygnus.png',
+      dw_stance: 'icons/soulmaster/dw_stance.png',
+      dw_echo: 'icons/soulmaster/dw_echo.png',
+      dw_reflect: 'icons/soulmaster/dw_reflect.png',
+      dw_driver: 'icons/soulmaster/dw_driver.png',
+      dw_brave: 'icons/soulmaster/dw_brave.png',
+      dw_soul_sword: 'icons/soulmaster/dw_soul_sword.png',
+      dw_hero: 'icons/soulmaster/dw_hero.png',
+
+      bw_mp_rec: 'icons/flamewizard/bw_mp_rec.png',
+      bw_mp_boost: 'icons/flamewizard/bw_mp_boost.png',
+      bw_magic_guard: 'icons/flamewizard/bw_magic_guard.png',
+      bw_magic_armor: 'icons/flamewizard/bw_magic_armor.png',
+      bw_flame_orb: 'icons/flamewizard/bw_flame_orb.png',
+      bw_magic_claw: 'icons/flamewizard/bw_magic_claw.png',
+      bw_flame_wisdom: 'icons/flamewizard/bw_flame_wisdom.png',
+      bw_meditation: 'icons/flamewizard/bw_meditation.png',
+      bw_element_reset: 'icons/flamewizard/bw_element_reset.png',
+      bw_teleport: 'icons/flamewizard/bw_teleport.png',
+      bw_flame_arrow: 'icons/flamewizard/bw_flame_arrow.png',
+      bw_fire_pillar: 'icons/flamewizard/bw_fire_pillar.png',
+      bw_spell_booster: 'icons/flamewizard/bw_spell_booster.png',
+      bw_flame_mastery: 'icons/flamewizard/bw_flame_mastery.png',
+      bw_flame_resist: 'icons/flamewizard/bw_flame_resist.png',
+      bw_element_amp: 'icons/flamewizard/bw_element_amp.png',
+      bw_flame_absorb: 'icons/flamewizard/bw_flame_absorb.png',
+      bw_seal: 'icons/flamewizard/bw_seal.png',
+      bw_flame_barrier: 'icons/flamewizard/bw_flame_barrier.png',
+      bw_flame_breath: 'icons/flamewizard/bw_flame_breath.png',
+      bw_cygnus: 'icons/flamewizard/bw_cygnus.png',
+      bw_flame_truth: 'icons/flamewizard/bw_flame_truth.png',
+      bw_fire_walk: 'icons/flamewizard/bw_fire_walk.png',
+      bw_fire_book: 'icons/flamewizard/bw_fire_book.png',
+      bw_meteor: 'icons/flamewizard/bw_meteor.png',
+      bw_fire_storm: 'icons/flamewizard/bw_fire_storm.png',
+      bw_fire_curtain: 'icons/flamewizard/bw_fire_curtain.png',
+      bw_flame_sprite: 'icons/flamewizard/bw_flame_sprite.png',
+      bw_hero_will: 'icons/flamewizard/bw_hero_will.png',
+      wa_eye: 'icons/windbreaker/wa_eye.png',
+      wa_crit: 'icons/windbreaker/wa_crit.png',
+      wa_range: 'icons/windbreaker/wa_range.png',
+      wa_focus: 'icons/windbreaker/wa_focus.png',
+      wa_storm: 'icons/windbreaker/wa_storm.png',
+      wa_double: 'icons/windbreaker/wa_double.png',
+      wa_mastery: 'icons/windbreaker/wa_mastery.png',
+      wa_booster: 'icons/windbreaker/wa_booster.png',
+      wa_walk: 'icons/windbreaker/wa_walk.png',
+      wa_final: 'icons/windbreaker/wa_final.png',
+      wa_soul_arrow: 'icons/windbreaker/wa_soul_arrow.png',
+      wa_storm_shot: 'icons/windbreaker/wa_storm_shot.png',
+      wa_alpha_eye: 'icons/windbreaker/wa_alpha_eye.png',
+      wa_speed: 'icons/windbreaker/wa_speed.png',
+      wa_mortal: 'icons/windbreaker/wa_mortal.png',
+      wa_puppet: 'icons/windbreaker/wa_puppet.png',
+      wa_alpha: 'icons/windbreaker/wa_alpha.png',
+      wa_quad: 'icons/windbreaker/wa_quad.png',
+      wa_rain: 'icons/windbreaker/wa_rain.png',
+      wa_cygnus: 'icons/windbreaker/wa_cygnus.png',
+      wa_expert: 'icons/windbreaker/wa_expert.png',
+      wa_feather: 'icons/windbreaker/wa_feather.png',
+      wa_prayer: 'icons/windbreaker/wa_prayer.png',
+      wa_adv_storm: 'icons/windbreaker/wa_adv_storm.png',
+      wa_hurricane: 'icons/windbreaker/wa_hurricane.png',
+      wa_strafe: 'icons/windbreaker/wa_strafe.png',
+      wa_hero: 'icons/windbreaker/wa_hero.png',
+      nw_agility: 'icons/nightwalker/nw_agility.png',
+      nw_eye: 'icons/nightwalker/nw_eye.png',
+      nw_bird: 'icons/nightwalker/nw_bird.png',
+      nw_dark: 'icons/nightwalker/nw_dark.png',
+      nw_lucky: 'icons/nightwalker/nw_lucky.png',
+      nw_mastery: 'icons/nightwalker/nw_mastery.png',
+      nw_booster: 'icons/nightwalker/nw_booster.png',
+      nw_crit: 'icons/nightwalker/nw_crit.png',
+      nw_haste: 'icons/nightwalker/nw_haste.png',
+      nw_triple: 'icons/nightwalker/nw_triple.png',
+      nw_drain: 'icons/nightwalker/nw_drain.png',
+      nw_potion: 'icons/nightwalker/nw_potion.png',
+      nw_web: 'icons/nightwalker/nw_web.png',
+      nw_bat: 'icons/nightwalker/nw_bat.png',
+      nw_avenger: 'icons/nightwalker/nw_avenger.png',
+      nw_quad: 'icons/nightwalker/nw_quad.png',
+      nw_jump: 'icons/nightwalker/nw_jump.png',
+      nw_cygnus: 'icons/nightwalker/nw_cygnus.png',
+      nw_expert: 'icons/nightwalker/nw_expert.png',
+      nw_adv_bird: 'icons/nightwalker/nw_adv_bird.png',
+      nw_link: 'icons/nightwalker/nw_link.png',
+      nw_dodge: 'icons/nightwalker/nw_dodge.png',
+      nw_bomb: 'icons/nightwalker/nw_bomb.png',
+      nw_quint: 'icons/nightwalker/nw_quint.png',
+      nw_hero: 'icons/nightwalker/nw_hero.png',
+      tb_avoid: 'icons/striker/tb_avoid.png',
+      tb_light: 'icons/striker/tb_light.png',
+      tb_punch: 'icons/striker/tb_punch.png',
+      tb_spin: 'icons/striker/tb_spin.png',
+      tb_dash: 'icons/striker/tb_dash.png',
+      tb_hp: 'icons/striker/tb_hp.png',
+      tb_mastery: 'icons/striker/tb_mastery.png',
+      tb_booster: 'icons/striker/tb_booster.png',
+      tb_thunder: 'icons/striker/tb_thunder.png',
+      tb_tornado: 'icons/striker/tb_tornado.png',
+      tb_rush: 'icons/striker/tb_rush.png',
+      tb_atlas: 'icons/striker/tb_atlas.png',
+      tb_crit: 'icons/striker/tb_crit.png',
+      tb_light_mastery: 'icons/striker/tb_light_mastery.png',
+      tb_drain: 'icons/striker/tb_drain.png',
+      tb_spark: 'icons/striker/tb_spark.png',
+      tb_blast: 'icons/striker/tb_blast.png',
+      tb_cygnus: 'icons/striker/tb_cygnus.png',
+      tb_stance: 'icons/striker/tb_stance.png',
+      tb_adv_light: 'icons/striker/tb_adv_light.png',
+      tb_rapid: 'icons/striker/tb_rapid.png',
+      tb_shark: 'icons/striker/tb_shark.png',
+      tb_flash: 'icons/striker/tb_flash.png',
+      tb_body: 'icons/striker/tb_body.png',
+      tb_hero: 'icons/striker/tb_hero.png',
+      bs_mp_rec: 'images/magicPurify.png',
+      bs_mp_inc: 'images/magicExtension.png',
+      bs_magic_guard: 'images/magicGuard.png',
+      bs_magic_claw: 'images/magicArrow.png',
+      bs_teleport: 'images/teleport.png',
+      bs_heal: 'images/massHeal.png',
+      bs_invincible: 'images/holyLight.png',
+      bs_bless: 'images/angelBlessing.png',
+      bs_holy_arrow: 'images/holyArrow.png',
+      bs_dispel: 'images/dispel.png',
+      bs_mystic_door: 'images/mysticDoor.png',
+      bs_hs: 'images/holySymbol.png',
+      bs_element_res: 'images/magicResistance.png',
+      bs_shining_ray: 'images/shiningRay.png',
+      bs_summon_dragon: 'images/summonHolyDragon.png',
+      bs_maple_warrior: 'images/mapleWarrior.png',
+      bs_genesis: 'images/heavensDoor.png',
+      bs_bahamut: 'images/summonDragon.png',
+      bs_resurrection: 'images/resurrection.png',
+      bs_angel_ray: 'images/angelRay.png',
+      bs_infinity: 'images/infinity.png',
+      bs_holy_shield: 'images/holyShield.png',
+      fp_mp_rec: 'images/magicPurify.png',
+      fp_mp_inc: 'images/magicExtension.png',
+      fp_magic_guard: 'images/magicGuard.png',
+      fp_magic_claw: 'images/magicArrow.png',
+      fp_teleport: 'images/teleport.png',
+      fp_meditation: 'images/mentalClarity.png',
+      fp_fire_arrow: 'images/flameArrow.png',
+      fp_poison_breath: 'images/poisonMist.png',
+      fp_slow: 'images/slow.png',
+      fp_element_amp: 'images/magicBooster.png',
+      fp_explosion: 'images/apocalypse.png',
+      fp_poison_mist: 'images/deadlyPoison.png',
+      fp_seal: 'images/magicSeal.png',
+      fp_magic_comp: 'images/firePoisonStrike.png',
+      fp_maple_warrior: 'images/mapleWarrior.png',
+      fp_meteor: 'images/meteorShower.png',
+      fp_ifrit: 'images/summonIfritI.png',
+      fp_paralyze: 'images/paralyze.png',
+      fp_infinity: 'images/infinity.png',
+      fp_fire_demon: 'images/fieryHell.png',
+      fp_mana_reflection: 'images/magicReflect.png',
+      il_mp_rec: 'images/magicPurify.png',
+      il_mp_inc: 'images/magicExtension.png',
+      il_magic_guard: 'images/magicGuard.png',
+      il_magic_claw: 'images/magicArrow.png',
+      il_teleport: 'images/teleport.png',
+      il_meditation: 'images/mentalClarity.png',
+      il_cold_beam: 'images/iceBolt.png',
+      il_thunder_bolt: 'images/thunderBolt.png',
+      il_element_amp: 'images/magicBooster.png',
+      il_ice_strike: 'images/iceStorm.png',
+      il_thunder_spear: 'images/lightningOrb.png',
+      il_blizzard: 'images/blizzard.png',
+      il_chain_lightning: 'images/chainLightning.png',
+      il_elquines: 'images/summonIfritF.png',
+      il_maple_warrior: 'images/mapleWarrior.png',
+      hr_hp_inc: 'images/hpBoost.png',
+      hr_power_strike: 'images/slashBlast.png',
+      hr_slash_blast: 'images/powerStrike.png',
+      hr_sword_mastery: 'images/swordMastery.png',
+      hr_sword_booster: 'images/swordBooster.png',
+      hr_rage: 'images/rage.png',
+      hr_combo: 'images/combatMastery.png',
+      hr_panic: 'images/brandishSword.png',
+      hr_coma: 'images/panicSword.png',
+      hr_brandish: 'images/monsterMagnet.png',
+      hr_adv_combo: 'images/advancedCombatMastery.png',
+      hr_rush: 'images/ultimateSpear.png',
+      hr_stance: 'images/powerGuard.png',
+      hr_maple_warrior: 'images/mapleWarrior.png',
+      pl_power_strike: 'images/slashBlast.png',
+      pl_slash_blast: 'images/powerStrike.png',
+      pl_mastery: 'images/swordMastery.png',
+      pl_booster: 'images/swordBooster.png',
+      pl_fire_charge: 'images/flameChargeSword.png',
+      pl_ice_charge: 'images/iceChargeSword.png',
+      pl_lightning_charge: 'images/lightningChargeSword.png',
+      pl_holy_charge: 'images/holyChargeSword.png',
+      pl_blast: 'images/blast.png',
+      pl_heavens_hammer: 'images/heavensHammer.png',
+      pl_stance: 'images/powerGuard.png',
+      dk_hp_inc: 'images/hpBoost.png',
+      dk_iron_body: 'images/ironBody.png',
+      dk_power_strike: 'images/slashBlast.png',
+      dk_slash_blast: 'images/powerStrike.png',
+      dk_spear_mastery: 'images/spearMastery.png',
+      dk_spear_booster: 'images/spearBooster.png',
+      dk_iron_will: 'images/hyperBody.png',
+      dk_hyper_body: 'images/holyFire.png',
+      dk_final_attack: 'images/finalAttackSpear.png',
+      dk_spear_crusher: 'images/dragonBusterSpear.png',
+      dk_dragon_fury: 'images/dragonFurySpear.png',
+      dk_dragon_roar: 'images/dragonRoar.png',
+      dk_sac: 'images/dragonSacrifice.png',
+      dk_element_res: 'images/magicResistance.png',
+      dk_berserk: 'images/darkSoul.png',
+      dk_beholder: 'images/darkGuardian.png',
+      dk_beholder_heal: 'images/darkSpiritHeal.png',
+      dk_beholder_buff: 'images/darkForce.png',
+      dk_stance: 'images/powerGuard.png',
+      dk_rush: 'images/ultimateSpear.png',
+      dk_maple_warrior: 'images/mapleWarrior.png',
+      bm_eye: 'images/eyeOfTheAmazon.png',
+      bm_crit: 'images/criticalShot.png',
+      bm_double: 'images/doubleShot.png',
+      bm_mastery: 'images/bowMastery.png',
+      bm_booster: 'images/bowBooster.png',
+      bm_soul_arrow: 'images/arrowPlatter.png',
+      bm_arrow_bomb: 'images/bombArrow.png',
+      bm_strafe: 'images/strafeBow.png',
+      bm_arrow_rain: 'images/arrowRain.png',
+      bm_puppet: 'images/puppet.png',
+      bm_sharp_eyes: 'images/sharpEyes.png',
+      bm_hurricane: 'images/hurricane.png',
+      bm_bow_expert: 'images/bowExpert.png',
+      bm_phoenix: 'images/phoenix.png',
+      bm_maple_warrior: 'images/mapleWarrior.png',
+      mm_eye: 'images/eyeOfTheAmazon.png',
+      mm_crit: 'images/criticalShot.png',
+      mm_double: 'images/doubleShot.png',
+      mm_mastery: 'images/crossbowMastery.png',
+      mm_booster: 'images/crossbowBooster.png',
+      mm_iron_arrow: 'images/piercingArrow.png',
+      mm_strafe: 'images/strafeBow.png',
+      mm_eruption: 'images/arrowEruptionCrossbow.png',
+      mm_sharp_eyes: 'images/sharpEyes.png',
+      mm_snipe: 'images/snipe.png',
+      mm_piercing: 'images/piercingArrowMarksman.png',
+      mm_frostprey: 'images/frostprey.png',
+      sh_nimble: 'images/haste.png',
+      sh_double_stab: 'images/doubleStab.png',
+      sh_dark_sight: 'images/darkSight.png',
+      sh_mastery: 'images/daggerMastery.png',
+      sh_booster: 'images/daggerBooster.png',
+      sh_haste: 'images/booster.png',
+      sh_savage_blow: 'images/savageBlow.png',
+      sh_meso_explosion: 'images/mesoExplosion.png',
+      sh_meso_guard: 'images/mesoGuardShield.png',
+      sh_assassinate: 'images/assassinate.png',
+      sh_boomerang: 'images/boomerangStep.png',
+      sh_smokescreen: 'images/smokescreen.png',
+      nl_nimble: 'images/haste.png',
+      nl_keen_eyes: 'images/keenEyes.png',
+      nl_lucky_seven: 'images/luckySeven.png',
+      nl_mastery: 'images/shurikenMastery.png',
+      nl_crit: 'images/criticalThrow.png',
+      nl_haste: 'images/booster.png',
+      nl_shadow_partner: 'images/shadowClone.png',
+      nl_flash_jump: 'images/doubleJump.png',
+      nl_triple_throw: 'images/tripleThrow.png',
+      nl_shadow_shifter: 'images/shadowerInstinct.png',
+      nl_venom: 'images/toxicVenom.png',
+      nl_maple_warrior: 'images/mapleWarrior.png',
+      bc_straight: 'images/straightPunch.png',
+      bc_somersault: 'images/somersaultKick.png',
+      bc_mastery: 'images/knuckleMastery.png',
+      bc_booster: 'images/knuckleBooster.png',
+      bc_energy_charge: 'images/energyCharge.png',
+      bc_transformation: 'images/transformation.png',
+      bc_speed_infusion: 'images/finalAttackS.png',
+      bc_time_leap: 'images/timeLeap.png',
+      bc_barrage: 'images/flashAssaultS.png',
+      bc_dragon_strike: 'images/dragonLord.png',
+      cs_double_fire: 'images/doubleShotPirate.png',
+      cs_mastery: 'images/gunMastery.png',
+      cs_booster: 'images/gunBooster.png',
+      cs_wings: 'images/specialForce.png',
+      cs_burst_fire: 'images/tripleFire.png',
+      cs_octopus: 'images/summonOctopus.png',
+      cs_battleship: 'images/pirateShip.png',
+      cs_cannon: 'images/pirateCannon.png',
+      cs_torpedo: 'images/pirateTorpedo.png',
+      cs_rapid_fire: 'images/instantFlash.png',
+    };
+
+    function lvSpan(lv, maxLv, start, end, digits) {
+      const value = maxLv <= 1 ? end : start + (lv - 1) * (end - start) / (maxLv - 1);
+      const d = digits == null ? 0 : digits;
+      const factor = 10 ** d;
+      return String(Math.round(value * factor) / factor);
+    }
+
+    function skillIconHtml(sk) {
+      const file = SKILL_ICONS[sk.id];
+      if (!file) return `<span class="skill-icon skill-icon-fallback">${sk.icon}</span>`;
+      const src = file.startsWith("icons/") ? file : `${SKILL_ICON_BASE}${file}`;
+      return `<img class="skill-icon" src="${src}" alt="">`;
+    }
+
+    const state = {
+      factionFilter: 'all',      // 'all' | 'adventurer' | 'cygnus'
+      currentJobId: 'dawn_warrior', // 預設開啟新加入的「聖魂劍士」展示改版亮點
+      charLevel: 200,
+      selectedTier: 'all',       // 'all' | 1 | 2 | 3 | 4
+      searchQuery: '',
+      allowCrossTier: true,
+      allocated: {}              // { skillId: number }
+    };
+
+    // DOM 元素參照
+    const els = {
+      jobGrid: document.getElementById('job-grid'),
+      factionTabs: document.querySelectorAll('.faction-tab'),
+      currentFactionBadge: document.getElementById('current-faction-badge'),
+      selectedJobIcon: document.getElementById('selected-job-icon'),
+      selectedJobName: document.getElementById('selected-job-name'),
+      selectedJobSub: document.getElementById('selected-job-sub'),
+      selectedJobDesc: document.getElementById('selected-job-desc'),
+      levelCapHint: document.getElementById('level-cap-hint'),
+      charLevelInput: document.getElementById('char-level-input'),
+      toggleCrossTier: document.getElementById('toggle-cross-tier'),
+      totalSpSummary: document.getElementById('total-sp-summary'),
+      tierSpCards: document.getElementById('tier-sp-cards'),
+      presetButtons: document.getElementById('preset-buttons'),
+      presetNoteBanner: document.getElementById('preset-note-banner'),
+      presetNoteTitle: document.getElementById('preset-note-title'),
+      presetNoteText: document.getElementById('preset-note-text'),
+      tierTabs: document.getElementById('tier-tabs'),
+      skillSearch: document.getElementById('skill-search'),
+      skillsContainer: document.getElementById('skills-container'),
+      toastContainer: document.getElementById('toast-container'),
+      modalDb: document.getElementById('modal-db'),
+      dbJsonEditor: document.getElementById('db-json-editor'),
+      modalChangelog: document.getElementById('modal-changelog')
+    };
+
+    /**
+     * ============================================================================
+     * 核心工具函式：SP 計算邏輯 (區分冒險家與皇家騎士團)
+     * ============================================================================
+     */
+    function calculateAvailableSP(job, level) {
+      const lv = Math.max(10, Math.min(job.maxLevel, level));
+      const pools = {};
+
+      const hasFourthJob = job.tiers.some(t => t.tier === 4);
+      if (job.faction === 'cygnus' && !hasFourthJob) {
+        // 皇家騎士團規則：上限 120 等，1~3 轉
+        // 10~30等：一轉 (1 + (lv-10)*3 或經典騎士團 5 SP/等規則)
+        // 採用 Artale / 懷舊騎士團經典公式：Lv.10~70 每等 5 SP，Lv.71~120 每等 3 SP，轉職額外贈送點數
+        const lv1 = Math.min(lv, 30);
+        pools[1] = 1 + Math.max(0, lv1 - 10) * 3; // 一轉共 61 點
+
+        if (lv >= 30) {
+          const lv2 = Math.min(lv, 70);
+          pools[2] = 1 + (lv2 - 30) * 3; // 二轉共 121 點
+        } else {
+          pools[2] = 0;
+        }
+
+        if (lv >= 70) {
+          const lv3 = Math.min(lv, 120);
+          pools[3] = 1 + (lv3 - 70) * 3; // 三轉共 151 點 (總計 333 點)
+        } else {
+          pools[3] = 0;
+        }
+      } else {
+        // 冒險家，以及含四轉的皇家騎士團：上限 200 等，1~4 轉
+        const lv1 = Math.min(lv, 30);
+        pools[1] = 1 + Math.max(0, lv1 - 10) * 3; // 一轉 61 點 (法師為 8等開始67點，此處採通用標準61點)
+
+        if (lv >= 30) {
+          const lv2 = Math.min(lv, 70);
+          pools[2] = 1 + (lv2 - 30) * 3; // 二轉 121 點
+        } else {
+          pools[2] = 0;
+        }
+
+        if (lv >= 70) {
+          const lv3 = Math.min(lv, 120);
+          pools[3] = 1 + (lv3 - 70) * 3; // 三轉 151 點
+        } else {
+          pools[3] = 0;
+        }
+
+        if (lv >= 120) {
+          pools[4] = 3 + (lv - 120) * 3; // 四轉初始 3 點 + 每等 3 點 (200等共 243 點)
+        } else {
+          pools[4] = 0;
+        }
+      }
+
+      return pools;
+    }
+
+    // 計算各轉職已用與剩餘 SP（支援跨轉向上借用）
+    function calculateSPStatus(job, level, allocated) {
+      const earned = calculateAvailableSP(job, level);
+      const spent = {};
+      job.tiers.forEach(t => { spent[t.tier] = 0; });
+
+      job.skills.forEach(sk => {
+        const pts = allocated[sk.id] || 0;
+        if (spent[sk.tier] !== undefined) {
+          spent[sk.tier] += pts;
+        }
+      });
+
+      const remaining = {};
+      let totalEarned = 0;
+      let totalSpent = 0;
+      let isOverAllocated = false;
+
+      job.tiers.forEach(t => {
+        totalEarned += earned[t.tier] || 0;
+        totalSpent += spent[t.tier] || 0;
+      });
+
+      if (!state.allowCrossTier) {
+        job.tiers.forEach(t => {
+          remaining[t.tier] = (earned[t.tier] || 0) - (spent[t.tier] || 0);
+          if (remaining[t.tier] < 0) isOverAllocated = true;
+        });
+      } else {
+        // 跨轉補點計算：低轉若超出自己的 SP，會自動消耗高轉的可用 SP
+        let carryDebt = 0;
+        job.tiers.forEach(t => {
+          const net = (earned[t.tier] || 0) - (spent[t.tier] || 0) - carryDebt;
+          if (net < 0) {
+            carryDebt = Math.abs(net);
+            remaining[t.tier] = 0;
+          } else {
+            carryDebt = 0;
+            remaining[t.tier] = net;
+          }
+        });
+        if (carryDebt > 0) isOverAllocated = true;
+      }
+
+      return { earned, spent, remaining, totalEarned, totalSpent, isOverAllocated };
+    }
+
+    /**
+     * ============================================================================
+     * 提示訊息系統 (Toast)
+     * ============================================================================
+     */
+    function showToast(message, type = 'info') {
+      const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '🚫' };
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.innerHTML = `<span>${icons[type] || icons.info}</span><span>${message}</span>`;
+      els.toastContainer.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    /**
+     * ============================================================================
+     * 技能點數操作與前置條件驗證
+     * ============================================================================
+     */
+    function previousJobBlock(job, tier) {
+      if (tier <= 1) return '';
+      const sp = calculateSPStatus(job, state.charLevel, state.allocated);
+      for (let t = 1; t < tier; t++) {
+        const left = (sp.earned[t] || 0) - (sp.spent[t] || 0);
+        if (left <= 0) continue;
+        const canStillAdd = job.skills.some(s => s.tier === t && (state.allocated[s.id] || 0) < s.maxLv);
+        if (canStillAdd) {
+          return `需先點完${t}轉技能點數（尚餘 ${left} 點），才能學習${tier}轉技能。`;
+        }
+      }
+      return '';
+    }
+
+    function setSkillLevel(skillId, targetLv) {
+      const job = SKILL_DATABASE[state.currentJobId];
+      const skill = job.skills.find(s => s.id === skillId);
+      if (!skill) return;
+
+      const currentLv = state.allocated[skillId] || 0;
+      const raw = Math.floor(Number(targetLv));
+      const safe = Number.isFinite(raw) ? raw : currentLv;
+      const clampedLv = Math.max(0, Math.min(skill.maxLv, safe));
+      if (clampedLv === currentLv) {
+        renderAll();
+        return;
+      }
+
+      // 1. 若為「加點」，檢查前置技能、前一轉是否點完，以及角色轉職等級
+      if (clampedLv > currentLv) {
+        const minReqCharLv = skill.tier === 1 ? 10 : skill.tier === 2 ? 30 : skill.tier === 3 ? 70 : 120;
+        if (state.charLevel < minReqCharLv) {
+          showToast(`「${skill.name}」需要角色達到 Lv.${minReqCharLv}（${skill.tier}轉）才能學習！`, 'warning');
+          renderAll();
+          return;
+        }
+
+        const tierBlock = previousJobBlock(job, skill.tier);
+        if (tierBlock) {
+          showToast(tierBlock, 'warning');
+          renderAll();
+          return;
+        }
+
+        if (skill.req) {
+          for (const [reqId, reqLv] of Object.entries(skill.req)) {
+            const actualReqLv = state.allocated[reqId] || 0;
+            if (actualReqLv < reqLv) {
+              const reqSkill = job.skills.find(s => s.id === reqId);
+              showToast(`前置條件不足：需先將「${reqSkill ? reqSkill.name : reqId}」點至 Lv.${reqLv}！`, 'error');
+              renderAll();
+              return;
+            }
+          }
+        }
+      }
+
+      // 2. 若為「減點」，檢查是否有其他已點技能依賴此技能
+      if (clampedLv < currentLv) {
+        for (const otherSkill of job.skills) {
+          const otherLv = state.allocated[otherSkill.id] || 0;
+          if (otherLv > 0 && otherSkill.req && otherSkill.req[skillId]) {
+            const neededLv = otherSkill.req[skillId];
+            if (clampedLv < neededLv) {
+              showToast(`無法降低等級：「${otherSkill.name}」需要此技能達到 Lv.${neededLv}！`, 'warning');
+              renderAll();
+              return;
+            }
+          }
+        }
+      }
+
+      // 套用新等級並檢查 SP 是否超支
+      const prevAllocated = { ...state.allocated };
+      if (clampedLv === 0) {
+        delete state.allocated[skillId];
+      } else {
+        state.allocated[skillId] = clampedLv;
+      }
+
+      const spCheck = calculateSPStatus(job, state.charLevel, state.allocated);
+      if (spCheck.isOverAllocated && clampedLv > currentLv) {
+        // 自動退回並提示 SP 不足
+        state.allocated = prevAllocated;
+        showToast(`${skill.tier}轉可用技能點數 (SP) 不足！請提升角色等級或洗掉其他技能。`, 'error');
+        renderAll();
+        return;
+      }
+
+      renderAll();
+    }
+
+    /**
+     * ============================================================================
+     * 渲染畫面邏輯
+     * ============================================================================
+     */
+    function renderJobGrid() {
+      const jobs = Object.values(SKILL_DATABASE).filter(j => {
+        if (state.factionFilter === 'all') return true;
+        return j.faction === state.factionFilter;
+      });
+
+      els.jobGrid.innerHTML = jobs.map(job => {
+        const isSelected = job.id === state.currentJobId;
+        return `
+          <button type="button" onclick="selectJob('${job.id}')" class="job-card${isSelected ? ' is-selected' : ''}">
+            ${jobMarkHtml(job)}
+            <strong>${job.name}</strong>
+            <small>${job.category}</small>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderJobHeaderAndSP() {
+      const job = SKILL_DATABASE[state.currentJobId];
+      const isCygnus = job.faction === 'cygnus';
+      const emblem = JOB_EMBLEMS[job.id];
+
+      document.documentElement.style.setProperty(
+        '--emblem-bg-url',
+        emblem ? `url("${EMBLEM_BASE}${emblem}")` : 'none'
+      );
+
+      const tierSpan = `${job.tiers[0].tier}～${job.tiers[job.tiers.length - 1].tier}轉`;
+      els.currentFactionBadge.textContent = isCygnus
+        ? `皇家騎士團 (Lv.${job.maxLevel} 上限・${tierSpan})`
+        : `冒險家 (Lv.${job.maxLevel} 上限・${tierSpan})`;
+
+      els.selectedJobIcon.innerHTML = emblem
+        ? `<img src="${EMBLEM_BASE}${emblem}" alt="">`
+        : job.icon;
+      els.selectedJobName.textContent = job.name;
+      els.selectedJobSub.textContent = job.category;
+      els.selectedJobDesc.textContent = job.desc;
+      els.levelCapHint.textContent = `(上限 Lv.${job.maxLevel})`;
+      els.charLevelInput.max = job.maxLevel;
+      els.charLevelInput.value = state.charLevel;
+
+      const spStatus = calculateSPStatus(job, state.charLevel, state.allocated);
+      const remainTotal = spStatus.totalEarned - spStatus.totalSpent;
+      els.totalSpSummary.innerHTML = `
+        <div>總已分配點數: <strong>${spStatus.totalSpent}</strong></div>
+        <div>剩餘點數: <strong class="${remainTotal < 0 ? 'neg' : 'ok'}">${remainTotal}</strong></div>
+      `;
+
+      els.tierSpCards.innerHTML = job.tiers.map(t => {
+        const earned = spStatus.earned[t.tier] || 0;
+        const spent = spStatus.spent[t.tier] || 0;
+        const rem = spStatus.remaining[t.tier] || 0;
+        const cls = rem < 0 ? 'neg' : 'ok';
+        return `
+          <div class="sp-row">
+            ${t.tier}轉：已用 ${spent} / 配額 ${earned}<br>
+            <span class="${cls}">剩餘 ${rem}</span>
+          </div>
+        `;
+      }).join('');
+
+      if (job.presets && job.presets.length > 0) {
+        els.presetButtons.innerHTML = job.presets.map((p, idx) => `
+          <button type="button" onclick="applyPreset(${idx})" class="preset-btn">${p.name}</button>
+        `).join('');
+      } else {
+        els.presetButtons.innerHTML = `<span>可自由配點，再用「儲存配點」留下方案</span>`;
+      }
+    }
+
+    function renderTierTabs() {
+      const job = SKILL_DATABASE[state.currentJobId];
+      const tabs = [{ tier: 'all', name: '全部轉職' }, ...job.tiers];
+
+      els.tierTabs.innerHTML = tabs.map(t => {
+        const isActive = String(state.selectedTier) === String(t.tier);
+        return `
+          <button type="button" onclick="selectTier('${t.tier}')" class="tier-tab${isActive ? ' is-active' : ''}">
+            ${t.name}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderSkills() {
+      const job = SKILL_DATABASE[state.currentJobId];
+      const query = state.searchQuery.trim().toLowerCase();
+
+      const tiersToRender = state.selectedTier === 'all'
+        ? job.tiers
+        : job.tiers.filter(t => String(t.tier) === String(state.selectedTier));
+
+      let html = '';
+
+      tiersToRender.forEach(tierObj => {
+        const tierSkills = job.skills.filter(sk => {
+          if (sk.tier !== tierObj.tier) return false;
+          if (!query) return true;
+          const descNow = sk.desc(state.allocated[sk.id] || 1).toLowerCase();
+          return sk.name.toLowerCase().includes(query) || descNow.includes(query);
+        });
+
+        if (tierSkills.length === 0) return;
+
+        html += `
+          <div class="tier-block">
+            <h2>${tierObj.name}</h2>
+              ${tierSkills.map(sk => renderSingleSkillCard(job, sk)).join('')}
+          </div>
+        `;
+      });
+
+      if (!html) {
+        html = `<div class="empty-skills">找不到符合「${state.searchQuery}」的技能，請嘗試其他關鍵字。</div>`;
+      }
+
+      els.skillsContainer.innerHTML = html;
+    }
+
+    function renderSingleSkillCard(job, sk) {
+      const curLv = state.allocated[sk.id] || 0;
+      const isMax = curLv >= sk.maxLv;
+      const tierLock = previousJobBlock(job, sk.tier);
+      const canRaise = !isMax && !tierLock;
+
+      let reqBadges = '';
+      if (sk.req) {
+        reqBadges = Object.entries(sk.req).map(([rId, rLv]) => {
+          const rSkill = job.skills.find(s => s.id === rId);
+          const actual = state.allocated[rId] || 0;
+          const ok = actual >= rLv;
+          return `<div class="${ok ? 'prereq-met' : 'prereq-unmet'}">前置：${rSkill ? rSkill.name : rId} (${actual}/${rLv})</div>`;
+        }).join('');
+      }
+
+      const currentDesc = curLv > 0
+        ? sk.desc(curLv)
+        : `尚未學習（Lv.1 效果：${sk.desc(1)}）`;
+      const nextDesc = (curLv > 0 && curLv < sk.maxLv)
+        ? `<div class="next-level-effect">下一級 (Lv.${curLv + 1})：${sk.desc(curLv + 1)}</div>`
+        : '';
+
+      return `
+        <div class="skill-item${isMax ? ' is-max' : ''}">
+            <div class="skill-header">
+            ${skillIconHtml(sk)}
+            <div class="skill-name">${sk.name}</div>
+            <span class="skill-type">${sk.type}</span>
+            <div class="skill-level-controls">
+              <button type="button" class="zero-button" onclick="setSkillLevel('${sk.id}', 0)" ${curLv === 0 ? 'disabled' : ''}>歸零</button>
+              <button type="button" onclick="setSkillLevel('${sk.id}', ${curLv - 1})" ${curLv === 0 ? 'disabled' : ''}>-</button>
+              <input class="skill-level-input" type="number" min="0" max="${sk.maxLv}" value="${curLv}"
+                onchange="setSkillLevel('${sk.id}', parseInt(this.value || 0, 10))">
+              <button type="button" onclick="setSkillLevel('${sk.id}', ${curLv + 1})" ${canRaise ? '' : 'disabled'}>+</button>
+              <span class="skill-max">/${sk.maxLv}</span>
+              <button type="button" class="max-button" onclick="setSkillLevel('${sk.id}', ${sk.maxLv})" ${canRaise ? '' : 'disabled'}>點滿</button>
+                </div>
+                  </div>
+          ${(tierLock || reqBadges) ? `<div class="skill-prerequisites">${tierLock ? `<div class="prereq-unmet">${tierLock}</div>` : ''}${reqBadges}</div>` : ''}
+          <div class="skill-description-area">
+            <div class="current-level-effect">${currentDesc}</div>
+              ${nextDesc}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      renderJobGrid();
+      renderJobHeaderAndSP();
+      renderTierTabs();
+      renderSkills();
+    }
+
+    /**
+     * ============================================================================
+     * 互動事件與功能模組 (切換職業、推薦配點、URL 分享、LocalStorage 存檔)
+     * ============================================================================
+     */
+    window.selectJob = function(jobId) {
+      if (!SKILL_DATABASE[jobId]) return;
+      state.currentJobId = jobId;
+      state.charLevel = SKILL_DATABASE[jobId].maxLevel;
+      state.selectedTier = 'all';
+      state.allocated = {};
+      els.presetNoteBanner.classList.add('hidden');
+      renderAll();
+    };
+
+    window.selectTier = function(tier) {
+      state.selectedTier = tier;
+      renderTierTabs();
+      renderSkills();
+    };
+
+    window.applyPreset = function(presetIndex) {
+      const job = SKILL_DATABASE[state.currentJobId];
+      const preset = job.presets[presetIndex];
+      if (!preset) return;
+
+      state.charLevel = Math.max(10, Math.min(job.maxLevel, preset.level || job.maxLevel));
+      const nextAllocated = {};
+      Object.entries(preset.skills || {}).forEach(([id, lv]) => {
+        const sk = job.skills.find(s => s.id === id);
+        if (!sk) return;
+        const raw = Math.floor(Number(lv));
+        if (!Number.isFinite(raw) || raw <= 0) return;
+        nextAllocated[id] = Math.min(sk.maxLv, raw);
+      });
+      state.allocated = nextAllocated;
+      els.presetNoteTitle.textContent = `推薦配點：${preset.name}`;
+      els.presetNoteText.textContent = preset.note;
+      els.presetNoteBanner.classList.remove('hidden');
+
+      renderAll();
+      showToast(`已成功套用「${preset.name}」！`, 'success');
+    };
+
+    // 陣營篩選頁籤
+    els.factionTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.factionFilter = btn.dataset.faction;
+        els.factionTabs.forEach(b => {
+          const active = b.dataset.faction === state.factionFilter;
+          b.className = active ? 'faction-tab is-active' : 'faction-tab';
+        });
+        renderJobGrid();
+      });
+    });
+
+    // 等級調整控制
+    function updateCharLevel(newLv) {
+      const job = SKILL_DATABASE[state.currentJobId];
+      state.charLevel = Math.max(10, Math.min(job.maxLevel, Math.floor(newLv || 10)));
+      renderJobHeaderAndSP();
+    }
+
+    document.getElementById('btn-lv-minus').addEventListener('click', () => updateCharLevel(state.charLevel - 1));
+    document.getElementById('btn-lv-plus').addEventListener('click', () => updateCharLevel(state.charLevel + 1));
+    document.getElementById('btn-lv-max').addEventListener('click', () => {
+      updateCharLevel(SKILL_DATABASE[state.currentJobId].maxLevel);
+      showToast(`已將角色等級設為上限 Lv.${state.charLevel}`, 'info');
+    });
+    els.charLevelInput.addEventListener('change', (e) => updateCharLevel(parseInt(e.target.value, 10)));
+
+    // 跨轉補點開關與重置
+    els.toggleCrossTier.addEventListener('change', (e) => {
+      state.allowCrossTier = e.target.checked;
+      renderJobHeaderAndSP();
+    });
+
+    document.getElementById('btn-reset-all').addEventListener('click', () => {
+      state.allocated = {};
+      els.presetNoteBanner.classList.add('hidden');
+      renderAll();
+      showToast('已將所有技能點數歸零！', 'info');
+    });
+
+    document.getElementById('btn-close-preset-note').addEventListener('click', () => {
+      els.presetNoteBanner.classList.add('hidden');
+    });
+
+    // 搜尋輸入框
+    els.skillSearch.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      renderSkills();
+    });
+
+    // 分享配點連結 (編碼至 URL Hash 並複製到剪貼簿)
+    document.getElementById('btn-share').addEventListener('click', () => {
+      const payload = {
+        j: state.currentJobId,
+        l: state.charLevel,
+        s: state.allocated
+      };
+      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+      const shareUrl = `${window.location.origin}${window.location.pathname}#build=${encoded}`;
+      window.location.hash = `build=${encoded}`;
+
+      // 使用相容性最高的 execCommand 複製
+      const tempInput = document.createElement('input');
+      tempInput.value = shareUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast('配點分享連結已複製到剪貼簿！直接貼上即可分享給朋友。', 'success');
+      } catch (err) {
+        showToast('網址已更新至瀏覽器網址列，請直接複製網址分享！', 'info');
+      }
+      document.body.removeChild(tempInput);
+    });
+
+    // LocalStorage 儲存與讀取自訂配點
+    document.getElementById('btn-save-local').addEventListener('click', () => {
+      const key = `artale_sim_save_${state.currentJobId}`;
+      const data = {
+        charLevel: state.charLevel,
+        allocated: state.allocated,
+        savedAt: new Date().toLocaleString()
+      };
+      localStorage.setItem(key, JSON.stringify(data));
+      showToast(`已儲存「${SKILL_DATABASE[state.currentJobId].name}」的個人配點！`, 'success');
+    });
+
+    document.getElementById('btn-load-local').addEventListener('click', () => {
+      const key = `artale_sim_save_${state.currentJobId}`;
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        showToast('目前職業尚無本地儲存紀錄！', 'warning');
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        state.charLevel = data.charLevel;
+        state.allocated = data.allocated || {};
+        renderAll();
+        showToast(`已讀取存檔（儲存時間：${data.savedAt}）`, 'success');
+      } catch (e) {
+        showToast('讀取存檔失敗，資料格式異常。', 'error');
+      }
+    });
+
+    // 技能資料庫 JSON 檢視與測試編輯器
+    document.getElementById('btn-open-db').addEventListener('click', () => {
+      // 序列化時保留 desc 範例結構供檢視
+      const serializable = {};
+      for (const [k, v] of Object.entries(SKILL_DATABASE)) {
+        serializable[k] = {
+          ...v,
+          skills: v.skills.map(sk => ({
+            id: sk.id,
+            tier: sk.tier,
+            name: sk.name,
+            type: sk.type,
+            icon: sk.icon,
+            maxLv: sk.maxLv,
+            req: sk.req || null,
+            previewMaxDesc: sk.desc(sk.maxLv)
+          }))
+        };
+      }
+      els.dbJsonEditor.value = JSON.stringify(serializable, null, 2);
+      els.modalDb.classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-db').addEventListener('click', () => els.modalDb.classList.add('hidden'));
+
+    document.getElementById('btn-copy-db').addEventListener('click', () => {
+      els.dbJsonEditor.select();
+      document.execCommand('copy');
+      showToast('已複製技能資料庫 JSON！', 'success');
+    });
+
+    document.getElementById('btn-apply-db').addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(els.dbJsonEditor.value);
+        for (const [jobId, jobData] of Object.entries(parsed)) {
+          if (SKILL_DATABASE[jobId] && Array.isArray(jobData.skills)) {
+            jobData.skills.forEach(editedSk => {
+              const target = SKILL_DATABASE[jobId].skills.find(s => s.id === editedSk.id);
+              if (target) {
+                target.name = editedSk.name;
+                target.maxLv = editedSk.maxLv;
+                target.type = editedSk.type;
+                if (editedSk.req) target.req = editedSk.req;
+              }
+            });
+          }
+        }
+        renderAll();
+        els.modalDb.classList.add('hidden');
+        showToast('已成功套用 JSON 修改並即時更新介面！', 'success');
+      } catch (e) {
+        showToast(`JSON 格式錯誤：${e.message}`, 'error');
+      }
+    });
+
+    // 改版日誌彈窗
+    document.getElementById('btn-open-changelog').addEventListener('click', () => els.modalChangelog.classList.remove('hidden'));
+    document.getElementById('btn-close-changelog').addEventListener('click', () => els.modalChangelog.classList.add('hidden'));
+
+    // 啟動時檢查是否有 URL 分享參數
+    function loadFromUrlHash() {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#build=')) {
+        try {
+          const encoded = hash.replace('#build=', '');
+          const decoded = JSON.parse(decodeURIComponent(atob(encoded)));
+          if (decoded.j && SKILL_DATABASE[decoded.j]) {
+            state.currentJobId = decoded.j;
+            state.charLevel = decoded.l || SKILL_DATABASE[decoded.j].maxLevel;
+            state.allocated = decoded.s || {};
+            showToast(`已自動載入分享的「${SKILL_DATABASE[decoded.j].name}」配點！`, 'success');
+          }
+        } catch (e) {
+          console.warn('無法解析分享網址參數', e);
+        }
+      }
+    }
+
+    // 初始化渲染
+    window.addEventListener('DOMContentLoaded', () => {
+      loadFromUrlHash();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
