@@ -435,6 +435,19 @@
     }
     .current-level-effect { color: #1976d2; }
     .next-level-effect { margin-top: 6px; color: #5d4037; }
+    .effect-stats { color: #1976d2; line-height: 1.55; }
+    .effect-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 12px 18px;
+      align-items: start;
+    }
+    .effect-prose {
+      color: #5d4037;
+      line-height: 1.55;
+      padding-left: 14px;
+      border-left: 1px solid #d7ccc8;
+    }
 
     .summary-lines { display: flex; flex-direction: column; gap: 12px; color: var(--brown-deep); font-size: 0.95rem; }
     .summary-lines strong { font-weight: 700; }
@@ -636,6 +649,13 @@
       .job-card img, .job-emoji { width: 84px; height: 84px; }
       .skill-header { flex-wrap: wrap; }
       .skill-level-controls { width: 100%; justify-content: flex-end; }
+      .effect-split { grid-template-columns: 1fr; }
+      .effect-prose {
+        padding-left: 0;
+        border-left: 0;
+        padding-top: 8px;
+        border-top: 1px solid #d7ccc8;
+      }
     }
     @media (max-width: 640px) {
       .job-grid { grid-template-columns: repeat(2, 1fr); }
@@ -662,8 +682,8 @@
         <button data-faction="adventurer" class="faction-tab">冒險家 (12)</button>
         <button data-faction="cygnus" class="faction-tab">
           皇家騎士團 (5)<span class="new-pill">NEW</span>
-            </button>
-          </div>
+          </button>
+        </div>
       <div id="job-grid" class="job-grid"></div>
       <div class="section-tools cover-actions">
         <button id="btn-open-board" class="btn btn-blue" type="button">推薦文列表</button>
@@ -687,18 +707,18 @@
     <div class="section-tools">
       <button id="btn-back-cover" class="btn btn-ghost" type="button">返回封面</button>
       <button id="btn-open-board-sim" class="btn btn-blue" type="button">推薦文列表</button>
-    </div>
+            </div>
     <section class="controls">
       <div class="current-job">
         <div id="selected-job-icon">🔥</div>
-        <div>
+            <div>
           <h3 id="selected-job-name">火毒大魔導</h3>
           <div>
             <span id="selected-job-sub">法師系</span>
-          </div>
+              </div>
           <p id="selected-job-desc">高爆發持續毒傷與大範圍火屬性魔法輸出。</p>
+            </div>
           </div>
-        </div>
       <label for="char-level-input">當前等級 <span id="level-cap-hint">(上限 Lv.200)</span></label>
       <button id="btn-lv-minus" class="btn btn-brown" type="button">-</button>
       <input id="char-level-input" type="number" min="10" max="200" value="200">
@@ -707,7 +727,7 @@
       <label class="check-line">
         <input id="toggle-cross-tier" type="checkbox" checked>
         允許高轉 SP 補低轉技能
-      </label>
+            </label>
       <button id="btn-reset-all" class="btn btn-red" type="button">重置</button>
       <button id="btn-share" class="btn btn-blue" type="button">分享</button>
       <button id="btn-save-local" class="btn btn-green" type="button">儲存配點</button>
@@ -717,23 +737,23 @@
       <div class="preset-row">
         <span>推薦配點</span>
         <div id="preset-buttons"></div>
-      </div>
+            </div>
     </section>
 
     <div id="preset-note-banner" class="note-banner hidden">
         <div>
         <h4 id="preset-note-title">推薦配點說明</h4>
         <p id="preset-note-text"></p>
-        </div>
+          </div>
       <button id="btn-close-preset-note" type="button">✕</button>
-    </div>
+      </div>
 
     <div class="workspace">
       <section class="skill-tree">
         <div id="tier-tabs" class="tier-filter"></div>
         <div class="search-wrap">
           <input id="skill-search" class="search-input" type="text" placeholder="搜尋技能名稱或效果...">
-        </div>
+          </div>
         <div id="skills-container"></div>
       </section>
       <aside class="summary">
@@ -741,14 +761,14 @@
         <div id="total-sp-summary" class="summary-lines">總已用 0 / 總可用 0</div>
         <div id="tier-sp-cards" class="summary-lines"></div>
       </aside>
-      </div>
-    </div>
+          </div>
+        </div>
 
     <footer class="site-footer">
       <p>By yeee公會 魯以</p>
       <p>全部參考 AfanTAR 大大的內容 若 AfanTAR大大覺得被冒犯 會立即下架</p>
     </footer>
-      </div>
+            </div>
 
   <div id="modal-share" class="modal hidden">
     <div class="modal-card narrow">
@@ -768,13 +788,13 @@
           <label for="share-note">說明</label>
           <textarea id="share-note" maxlength="400" placeholder="這份配點怎麼用"></textarea>
         </form>
-      </div>
+    </div>
       <div class="modal-foot">
         <button id="btn-copy-share" class="btn btn-ghost" type="button">只複製連結</button>
         <button id="btn-publish-share" class="btn btn-blue" type="button">存到 GitHub</button>
+        </div>
+        </div>
       </div>
-    </div>
-  </div>
 
   <div id="toast-container" class="toast-stack"></div>
 
@@ -805,13 +825,19 @@
       </div>
       <div class="modal-body">
         <div class="log-item">
+          <h4>v2.3 冒險家技能數值</h4>
+          <ul>
+            <li>冒險家技能卡改成左右兩欄：左邊是該等級的消耗與數值，右邊是技能說明。皇家騎士團五職業維持原樣。</li>
+          </ul>
+        </div>
+        <div class="log-item">
           <h4>v2.2 封面與推薦文</h4>
           <ul>
             <li>開啟頁面先看到封面。點進職業後才開始配點，不再預設聖魂劍士。</li>
             <li>推薦文列表收錄站內配點。按分享會把這份配點公開存到 GitHub，大家都能查看。</li>
             <li>By yeee公會 魯以。全部參考 AfanTAR 大大的內容，若 AfanTAR 大大覺得被冒犯，會立即下架。</li>
           </ul>
-        </div>
+          </div>
         <div class="log-item">
           <h4>v2.1 冒險家改版</h4>
           <ul>
@@ -837,6 +863,7 @@
     </div>
   </div>
 
+  <script src="adventurer-effects.js"></script>
   <script>
     /**
      * ============================================================================
@@ -2653,6 +2680,27 @@
       els.skillsContainer.innerHTML = html;
     }
 
+    function renderSkillEffect(job, sk, curLv) {
+      const oursNow = curLv > 0 ? sk.desc(curLv) : `尚未學習（Lv.1 效果：${sk.desc(1)}）`;
+      if (job.faction !== 'adventurer') {
+        const nextDesc = (curLv > 0 && curLv < sk.maxLv)
+          ? `<div class="next-level-effect">下一級 (Lv.${curLv + 1})：${escapeHtml(sk.desc(curLv + 1))}</div>`
+          : '';
+        return `<div class="skill-description-area"><div class="current-level-effect">${escapeHtml(oursNow)}</div>${nextDesc}</div>`;
+      }
+      const showLv = curLv > 0 ? curLv : 1;
+      const pack = typeof ADVENTURER_FX !== 'undefined' ? ADVENTURER_FX[sk.id] : null;
+      const src = sk.desc.toString();
+      const official = src.includes('lvSpan') || src.includes('不再變身') || src.includes('毒術');
+      const jamoxLine = pack && pack.fx ? pack.fx[showLv - 1] : '';
+      const useJamox = Boolean(jamoxLine) && !official;
+      const stats = useJamox ? jamoxLine : sk.desc(showLv);
+      const prose = useJamox ? (pack.keepProse ? sk.desc(showLv) : (pack.prose || '')) : '';
+      const label = (curLv > 0 ? `等級 ${showLv} 效果: ` : '尚未學習。等級 1 效果: ') + stats;
+      const proseHtml = prose ? `<div class="effect-prose">${escapeHtml(prose)}</div>` : '';
+      return `<div class="skill-description-area${prose ? ' effect-split' : ''}"><div class="effect-stats">${escapeHtml(label)}</div>${proseHtml}</div>`;
+    }
+
     function renderSingleSkillCard(job, sk) {
       const curLv = state.allocated[sk.id] || 0;
       const isMax = curLv >= sk.maxLv;
@@ -2668,13 +2716,6 @@
           return `<div class="${ok ? 'prereq-met' : 'prereq-unmet'}">前置：${rSkill ? rSkill.name : rId} (${actual}/${rLv})</div>`;
         }).join('');
       }
-
-      const currentDesc = curLv > 0
-        ? sk.desc(curLv)
-        : `尚未學習（Lv.1 效果：${sk.desc(1)}）`;
-      const nextDesc = (curLv > 0 && curLv < sk.maxLv)
-        ? `<div class="next-level-effect">下一級 (Lv.${curLv + 1})：${sk.desc(curLv + 1)}</div>`
-        : '';
 
       return `
         <div class="skill-item${isMax ? ' is-max' : ''}">
@@ -2693,10 +2734,7 @@
                 </div>
                   </div>
           ${(tierLock || reqBadges) ? `<div class="skill-prerequisites">${tierLock ? `<div class="prereq-unmet">${tierLock}</div>` : ''}${reqBadges}</div>` : ''}
-          <div class="skill-description-area">
-            <div class="current-level-effect">${currentDesc}</div>
-              ${nextDesc}
-          </div>
+          ${renderSkillEffect(job, sk, curLv)}
         </div>
       `;
     }
