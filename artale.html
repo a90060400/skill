@@ -774,6 +774,14 @@
       </div>
       <div class="modal-body">
         <div class="log-item">
+          <h4>v2.6 補回冒險家原有技能</h4>
+          <ul>
+            <li>一轉補回原本就有、先前清單漏掉的技能。黑騎士會看到完整的生命淨化、生命擴展、生命恢復、自身強化、魔天一擊、劍氣縱橫，其他冒險家職業的一轉也一併補上。官方改版刪掉或改名的技能維持現況。</li>
+            <li>黑騎士拿掉多出來的狂暴，改回黑暗守護，並排到暗之靈魂、暗之靈魂的治癒後面。</li>
+            <li>補回全職業四轉共通的楓葉祝福、楓葉淨化。英雄與黑騎士補武神防禦、絕對引力、究極神盾。聖騎士的武神防禦與究極神盾依官方刪除，盾牌攻擊改由盾牌之力負責。</li>
+          </ul>
+        </div>
+        <div class="log-item">
           <h4>v2.5 存檔寫進 cookie</h4>
           <ul>
             <li>按儲存後，配點寫進這台瀏覽器的 cookie。下次打開同一台裝置，會直接看到上次點的技能。</li>
@@ -1234,7 +1242,7 @@
             level: 200,
             note: '一到三轉先點完。四轉點滿天怒、召喚神龍、聖靈祈禱與超級神聖祈禱。',
             skills: {
-              bs_mp_rec: 16, bs_mp_inc: 10, bs_magic_guard: 20, bs_magic_claw: 15,
+              bs_mp_rec: 16, bs_mp_inc: 10, bs_magic_guard: 20, bs_magic_arrow: 1, bs_magic_claw: 14,
               bs_heal: 30, bs_invincible: 20, bs_bless: 20, bs_teleport: 20, bs_holy_arrow: 30,
               bs_hs: 30, bs_dispel: 20, bs_mystic_door: 20, bs_element_res: 20, bs_shining_ray: 30, bs_summon_dragon: 21, bs_doom: 10,
               bs_genesis: 30, bs_bahamut: 30, bs_resurrection: 10, bs_angel_ray: 30, bs_maple_warrior: 23, bs_infinity: 30, bs_holy_shield: 30, bs_big_bang: 30, bs_holy_prayer: 10, bs_super_hs: 20
@@ -1245,7 +1253,9 @@
           { id: 'bs_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
           { id: 'bs_mp_inc', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { bs_mp_rec: 5 }, desc: (lv) => `升級時額外增加的 MaxMP 提高 +${lv * 4}（1級 4，滿級 40）。` },
           { id: 'bs_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `消耗 MP ${12}，將 ${10 + lv * 3.5}% 傷害轉由 MP 承受。` },
-          { id: 'bs_magic_claw', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `發射 2 發魔法彈攻擊單體，基礎威力 ${30 + lv * 1.5}。` },
+          { id: 'bs_magic_armor', tier: 1, name: '魔力之盾', type: '輔助', icon: '🛡️', maxLv: 20, req: { bs_magic_guard: 3 }, desc: (lv) => `一定時間內把魔力集中在盔甲上，提高物理防禦力。` },
+          { id: 'bs_magic_arrow', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `消耗 MP 來攻擊單一個怪物。` },
+          { id: 'bs_magic_claw', tier: 1, name: '魔力爪', type: '主動', icon: '🖐️', maxLv: 20, req: { bs_magic_arrow: 1 }, desc: (lv) => `消耗 MP，對同一個怪物發動兩次連續攻擊。` },
           { id: 'bs_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `消耗 MP ${40 - lv * 1.3 | 0}，朝指定方向瞬間移動。` },
           { id: 'bs_heal', tier: 2, name: '群體治癒', type: '主動', icon: '💚', maxLv: 30, desc: (lv) => `恢復周圍隊友大量 HP，並對不死系怪物造成神聖傷害，回復量 ${100 + lv * 10}%。` },
           { id: 'bs_invincible', tier: 2, name: '神聖之光', type: '輔助', icon: '🛡️', maxLv: 20, req: { bs_heal: 5 }, desc: (lv) => `降低受到的物理傷害 ${10 + lv}%。` },
@@ -1259,6 +1269,7 @@
           { id: 'bs_shining_ray', tier: 3, name: '聖光', type: '主動', icon: '☀️', maxLv: 30, desc: (lv) => `釋放聖光攻擊最多 6 名敵人並機率暈眩，基礎威力 ${75 + lv * 1.5}。` },
           { id: 'bs_summon_dragon', tier: 3, name: '聖龍召喚', type: '召喚', icon: '🐉', maxLv: 30, desc: (lv) => `召喚神聖之龍在身旁攻擊敵人，攻擊力 ${lvSpan(lv, 30, 84, 200)}。` },
           { id: 'bs_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性（STR/DEX/INT/LUK）提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'bs_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` },
           { id: 'bs_genesis', tier: 4, name: '天怒', type: '主動', icon: '🌠', maxLv: 30, desc: (lv) => `神聖之光從天而降，對最多 15 名敵人造成神聖傷害並使其昏迷。施放期間可以使用瞬間移動。` },
           { id: 'bs_bahamut', tier: 4, name: '召喚神龍', type: '召喚', icon: '🐲', maxLv: 30, req: { bs_summon_dragon: 15 }, desc: (lv) => `召喚進化神龍，最多同時攻擊 4 名敵人。` },
           { id: 'bs_resurrection', tier: 4, name: '復甦之光', type: '輔助', icon: '✝️', maxLv: 10, desc: (lv) => `復活隊友，並為所有隊友施加短暫聖潔護盾。冷卻 ${lvSpan(lv, 10, 19, 10)} 分鐘，消耗 MP ${lvSpan(lv, 10, 5000, 2000)}。` },
@@ -1291,7 +1302,7 @@
             level: 200,
             note: '一到三轉先點完再進下一轉。二轉以毒術大師 I 與毒霧為主，三轉接毒術大師 II、致命毒霧與末日烈焰，四轉點滿毒術大師 III、火流星、劇毒麻痺與核爆術。',
             skills: {
-              fp_mp_rec: 16, fp_mp_inc: 10, fp_magic_guard: 20, fp_magic_claw: 15,
+              fp_mp_rec: 16, fp_mp_inc: 10, fp_magic_guard: 20, fp_magic_arrow: 1, fp_magic_claw: 14,
               fp_poison_master1: 20, fp_teleport: 20, fp_meditation: 20, fp_fire_arrow: 30, fp_poison_breath: 30,
               fp_element_amp: 30, fp_poison_master2: 20, fp_explosion: 30, fp_poison_mist: 30, fp_magic_comp: 30,
               fp_poison_master3: 30, fp_maple_warrior: 30, fp_meteor: 30, fp_ifrit: 30, fp_paralyze: 30, fp_infinity: 30, fp_fire_demon: 30, fp_big_bang: 30
@@ -1302,7 +1313,9 @@
           { id: 'fp_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
           { id: 'fp_mp_inc', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { fp_mp_rec: 5 }, desc: (lv) => `升級時額外增加的 MaxMP 提高 +${lv * 4}（1級 4，滿級 40）。` },
           { id: 'fp_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `將 ${10 + lv * 3.5}% 傷害轉由 MP 承受。` },
-          { id: 'fp_magic_claw', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `發射 2 發魔法彈攻擊單體，基礎威力 ${30 + lv * 1.5}。` },
+          { id: 'fp_magic_armor', tier: 1, name: '魔力之盾', type: '輔助', icon: '🛡️', maxLv: 20, req: { fp_magic_guard: 3 }, desc: (lv) => `一定時間內把魔力集中在盔甲上，提高物理防禦力。` },
+          { id: 'fp_magic_arrow', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `消耗 MP 來攻擊單一個怪物。` },
+          { id: 'fp_magic_claw', tier: 1, name: '魔力爪', type: '主動', icon: '🖐️', maxLv: 20, req: { fp_magic_arrow: 1 }, desc: (lv) => `消耗 MP，對同一個怪物發動兩次連續攻擊。` },
           { id: 'fp_poison_master1', tier: 2, name: '毒術大師 I', type: '被動', icon: '☠️', maxLv: 20, desc: (lv) => `領悟毒屬性魔法的基礎，能使敵人中毒。中毒基礎攻擊力 ${lvSpan(lv, 20, 0.5, 2.5, 1)}，傷害依魔力與智力計算。其他玩家的中毒效果會覆蓋原有的中毒。` },
           { id: 'fp_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `朝指定方向瞬間移動。` },
           { id: 'fp_meditation', tier: 2, name: '精神強化', type: '輔助', icon: '🧘', maxLv: 20, desc: (lv) => `提升全隊魔法攻擊力 +${lv}。` },
@@ -1315,6 +1328,7 @@
           { id: 'fp_magic_comp', tier: 3, name: '火毒合擊', type: '主動', icon: '🔥', maxLv: 30, desc: (lv) => `以火焰與毒素中對敵人傷害較高的一種屬性攻擊單一敵人。${lvSpan(lv, 30, 70, 100)}% 機率中毒 10 秒，傷害依毒術大師的中毒基礎攻擊力計算。` },
           { id: 'fp_poison_master3', tier: 4, name: '毒術大師 III', type: '被動', icon: '☠️', maxLv: 30, req: { fp_poison_master2: 20 }, desc: (lv) => `領悟毒屬性魔法的精髓。中毒基礎攻擊力 ${lvSpan(lv, 30, 12, 48)}。` },
           { id: 'fp_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'fp_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` },
           { id: 'fp_meteor', tier: 4, name: '火流星', type: '主動', icon: '☄️', maxLv: 30, desc: (lv) => `召喚隕石從天而降，對最多 15 名敵人造成強力的火焰傷害。施放期間可以使用瞬間移動。` },
           { id: 'fp_ifrit', tier: 4, name: '火魔召喚', type: '召喚', icon: '👹', maxLv: 30, desc: (lv) => `召喚火之魔神伊弗利特協助攻擊，威力 ${200 + lv * 3.5}。` },
           { id: 'fp_paralyze', tier: 4, name: '劇毒麻痺', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `對單一敵人造成傷害並使其麻痺。命中時必定中毒 ${lvSpan(lv, 30, 3, 6)} 秒；對已中毒的敵人追加 1 次攻擊，傷害 ${lvSpan(lv, 30, 5, 20)}%。無法麻痺 BOSS，但會造成額外傷害。等級高於或等於火流星時，火流星也會附加麻痺。` },
@@ -1344,7 +1358,7 @@
             level: 200,
             note: '一到三轉先點完。三轉點滿冰凍效果，四轉點滿結凍粉碎、核爆術、閃電連擊與暴風雪。',
             skills: {
-              il_mp_rec: 16, il_mp_inc: 10, il_magic_guard: 20, il_magic_claw: 15,
+              il_mp_rec: 16, il_mp_inc: 10, il_magic_guard: 20, il_magic_arrow: 1, il_magic_claw: 14,
               il_teleport: 20, il_meditation: 20, il_cold_beam: 30, il_thunder_bolt: 30,
               il_element_amp: 30, il_freeze: 30, il_ice_strike: 30, il_thunder_spear: 30, il_element_comp: 30,
               il_shatter: 20, il_big_bang: 30, il_ice_demon: 30, il_chain_lightning: 30, il_blizzard: 30, il_elquines: 30, il_maple_warrior: 30
@@ -1355,7 +1369,9 @@
           { id: 'il_mp_rec', tier: 1, name: '魔力淨化', type: '被動', icon: '💧', maxLv: 16, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 3}。` },
           { id: 'il_mp_inc', tier: 1, name: '魔力擴展', type: '被動', icon: '🔷', maxLv: 10, req: { il_mp_rec: 5 }, desc: (lv) => `升級時額外增加的 MaxMP 提高 +${lv * 4}（1級 4，滿級 40）。` },
           { id: 'il_magic_guard', tier: 1, name: '魔心防禦', type: '輔助', icon: '🔮', maxLv: 20, desc: (lv) => `將 ${10 + lv * 3.5}% 傷害轉由 MP 承受。` },
-          { id: 'il_magic_claw', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `發射 2 發魔法彈攻擊單體，基礎威力 ${30 + lv * 1.5}。` },
+          { id: 'il_magic_armor', tier: 1, name: '魔力之盾', type: '輔助', icon: '🛡️', maxLv: 20, req: { il_magic_guard: 3 }, desc: (lv) => `一定時間內把魔力集中在盔甲上，提高物理防禦力。` },
+          { id: 'il_magic_arrow', tier: 1, name: '魔靈彈', type: '主動', icon: '✨', maxLv: 20, desc: (lv) => `消耗 MP 來攻擊單一個怪物。` },
+          { id: 'il_magic_claw', tier: 1, name: '魔力爪', type: '主動', icon: '🖐️', maxLv: 20, req: { il_magic_arrow: 1 }, desc: (lv) => `消耗 MP，對同一個怪物發動兩次連續攻擊。` },
           { id: 'il_teleport', tier: 2, name: '瞬間移動', type: '主動', icon: '⚡', maxLv: 20, desc: (lv) => `朝指定方向瞬間移動。` },
           { id: 'il_meditation', tier: 2, name: '精神強化', type: '輔助', icon: '🧘', maxLv: 20, desc: (lv) => `提升全隊魔法攻擊力 +${lv}。` },
           { id: 'il_cold_beam', tier: 2, name: '冰錐術', type: '主動', icon: '🧊', maxLv: 30, desc: (lv) => `單體冰屬性魔法並凍結敵人，基礎威力 ${65 + lv * 2}。` },
@@ -1371,7 +1387,8 @@
           { id: 'il_blizzard', tier: 4, name: '暴風雪', type: '主動', icon: '🌨️', maxLv: 30, desc: (lv) => `召喚暴風雪，對最多 15 名敵人造成強力冰屬性傷害。施放期間可以使用瞬間移動。` },
           { id: 'il_chain_lightning', tier: 4, name: '閃電連擊', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `以雷屬性攻擊單一敵人，基礎攻擊力 ${lvSpan(lv, 30, 83, 170)}。傳導到新敵人時傷害衰減 13%，同一目標衰減 26%。只有一名敵人時命中 ${lvSpan(lv, 30, 2, 4)} 次。` },
           { id: 'il_elquines', tier: 4, name: '冰魔召喚', type: '召喚', icon: '❄️', maxLv: 30, desc: (lv) => `召喚冰之魔神埃爾奎納斯協助凍結與攻擊敵人。` },
-          { id: 'il_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+          { id: 'il_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'il_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1395,7 +1412,7 @@
             level: 200,
             note: '一到三轉先點完。四轉點滿進階鬥氣、鬥氣爆發、無雙劍舞與究極突刺。',
             skills: {
-              hr_hp_inc: 10, hr_power_strike: 20, hr_slash_blast: 20,
+              hr_hp_rec: 11, hr_hp_inc: 10, hr_power_strike: 20, hr_slash_blast: 20,
               hr_sword_mastery: 20, hr_sword_booster: 20, hr_rage: 20,
               hr_combo: 30, hr_panic: 30, hr_coma: 30, hr_defense_cancel: 20,
               hr_brandish: 30, hr_adv_combo: 30, hr_rush: 30, hr_stance: 30, hr_maple_warrior: 30, hr_combo_burst: 30
@@ -1403,9 +1420,12 @@
           }
         ],
         skills: [
-          { id: 'hr_hp_inc', tier: 1, name: '生命淨化/擴展', type: '被動', icon: '❤️', maxLv: 10, desc: (lv) => `升級時額外增加最大 HP 上限。` },
-          { id: 'hr_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `單體強力斬擊，傷害 ${160 + lv * 5}%。` },
-          { id: 'hr_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, req: { hr_power_strike: 1 }, desc: (lv) => `前方最多 6 名敵人範圍斬擊，傷害 ${85 + lv * 2.5}%。` },
+          { id: 'hr_hp_rec', tier: 1, name: '生命淨化', type: '被動', icon: '💗', maxLv: 16, desc: (lv) => `自我恢復時能回復更多 HP。移動中可恢復。` },
+          { id: 'hr_hp_inc', tier: 1, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, req: { hr_hp_rec: 5 }, desc: (lv) => `等級上升或使用升級點（AP）時，增加 HP 的增血量。` },
+          { id: 'hr_hp_restore', tier: 1, name: '生命恢復', type: '被動', icon: '💚', maxLv: 8, req: { hr_hp_rec: 5, hr_hp_inc: 3 }, desc: (lv) => `提升自我恢復 HP，可與生命淨化疊加。` },
+          { id: 'hr_iron_body', tier: 1, name: '自身強化', type: '輔助', icon: '🛡️', maxLv: 20, req: { hr_hp_rec: 5, hr_hp_inc: 3, hr_hp_restore: 3 }, desc: (lv) => `一定時間內增加物理防禦力。` },
+          { id: 'hr_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `消耗 MP，給予怪物強力一擊。` },
+          { id: 'hr_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, req: { hr_power_strike: 1 }, desc: (lv) => `消耗 HP 和 MP，同時攻擊周遭的多個怪物。` },
           { id: 'hr_sword_mastery', tier: 2, name: '精準之劍', type: '被動', icon: '🗡️', maxLv: 20, desc: (lv) => `劍類熟練度提升至 ${10 + lv * 2.5}%，命中率 +${lv}。` },
           { id: 'hr_sword_booster', tier: 2, name: '快速之劍', type: '輔助', icon: '⚡', maxLv: 20, req: { hr_sword_mastery: 5 }, desc: (lv) => `提升劍類武器攻擊速度 2 階段。` },
           { id: 'hr_rage', tier: 2, name: '激勵', type: '輔助', icon: '🔥', maxLv: 20, desc: (lv) => `提升周圍隊員攻擊力 +${lvSpan(lv, 20, 1, 8)}、魔力 +${lvSpan(lv, 20, 1, 10)}，物理與魔法防禦各降低 ${lvSpan(lv, 20, 43, 100)}。` },
@@ -1416,9 +1436,13 @@
           { id: 'hr_brandish', tier: 4, name: '無雙劍舞', type: '主動', icon: '⚔️', maxLv: 30, desc: (lv) => `對前方最多 3 名敵人進行 2 次強力連斬，每擊 ${190 + lv * 2.5}% 傷害。鬥氣爆發期間只攻擊 1 名敵人，傷害係數 +10%。` },
           { id: 'hr_adv_combo', tier: 4, name: '進階鬥氣', type: '被動', icon: '👑', maxLv: 30, req: { hr_combo: 30 }, desc: (lv) => `提升鬥氣集中的傷害與最大鬥氣量，並有機率一次累積更多鬥氣。1～5 顆時傷害 ${lvSpan(lv, 30, 1.70, 1.90, 2)} 倍。` },
           { id: 'hr_rush', tier: 4, name: '究極突刺', type: '主動', icon: '💨', maxLv: 30, desc: (lv) => `朝前方衝刺並推開面前的敵人。鬥氣集中時擊中會累積鬥氣。鬥氣爆發期間傷害 ${lvSpan(lv, 30, 216, 390)}%。` },
+          { id: 'hr_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'hr_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` },
+          { id: 'hr_sturdy', tier: 4, name: '武神防禦', type: '被動', icon: '🛡️', maxLv: 30, desc: (lv) => `強化自身的物理防禦。` },
           { id: 'hr_stance', tier: 4, name: '格擋', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 35, 100)}% 機率受到攻擊時不會被擊退。` },
+          { id: 'hr_magnet', tier: 4, name: '絕對引力', type: '主動', icon: '🧲', maxLv: 30, desc: (lv) => `吸引一定範圍內的遠距離怪物。` },
+          { id: 'hr_god_shield', tier: 4, name: '究極神盾', type: '被動', icon: '🛡️', maxLv: 30, desc: (lv) => `裝備盾牌時，有機率在近距離物理攻擊時擊退敵人，擊退後有 2 秒無敵。` },
           { id: 'hr_combo_burst', tier: 4, name: '鬥氣爆發', type: '輔助', icon: '💥', maxLv: 30, desc: (lv) => `消耗全部鬥氣，${lvSpan(lv, 30, 30, 180)} 秒內攻擊速度 +${lv <= 15 ? 1 : 2} 階段，並加快鬥氣累積。期間無雙劍舞只打 1 名敵人且傷害係數 +10%，究極突刺傷害大幅提升。施放 0.2 秒，無冷卻。` },
-          { id: 'hr_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
         ]
       },
 
@@ -1442,7 +1466,7 @@
             level: 200,
             note: '一到三轉先點完。四轉點滿騎士衝擊波、鬼神之擊、屬性強化與聖騎士防禦。',
             skills: {
-              pl_power_strike: 20, pl_slash_blast: 20,
+              pl_hp_rec: 16, pl_hp_inc: 5, pl_power_strike: 20, pl_slash_blast: 20,
               pl_threaten: 20, pl_mastery: 20, pl_booster: 20, pl_shield_mastery: 20, pl_bless_armor: 20,
               pl_fire_charge: 30, pl_ice_charge: 30, pl_lightning_charge: 30, pl_element_attack: 30,
               pl_holy_charge: 20, pl_blast: 30, pl_heavens_hammer: 30, pl_stance: 30, pl_shield_power: 10, pl_element_enhance: 10, pl_divine_guard: 30, pl_rush: 30
@@ -1450,8 +1474,12 @@
           }
         ],
         skills: [
-          { id: 'pl_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `單體強力斬擊，傷害 ${160 + lv * 5}%。` },
-          { id: 'pl_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `範圍斬擊，傷害 ${85 + lv * 2.5}%。` },
+          { id: 'pl_hp_rec', tier: 1, name: '生命淨化', type: '被動', icon: '💗', maxLv: 16, desc: (lv) => `自我恢復時能回復更多 HP。移動中可恢復。` },
+          { id: 'pl_hp_inc', tier: 1, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, req: { pl_hp_rec: 5 }, desc: (lv) => `等級上升或使用升級點（AP）時，增加 HP 的增血量。` },
+          { id: 'pl_hp_restore', tier: 1, name: '生命恢復', type: '被動', icon: '💚', maxLv: 8, req: { pl_hp_rec: 5, pl_hp_inc: 3 }, desc: (lv) => `提升自我恢復 HP，可與生命淨化疊加。` },
+          { id: 'pl_iron_body', tier: 1, name: '自身強化', type: '輔助', icon: '🛡️', maxLv: 20, req: { pl_hp_rec: 5, pl_hp_inc: 3, pl_hp_restore: 3 }, desc: (lv) => `一定時間內增加物理防禦力。` },
+          { id: 'pl_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `消耗 MP，給予怪物強力一擊。` },
+          { id: 'pl_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, req: { pl_power_strike: 1 }, desc: (lv) => `消耗 HP 和 MP，同時攻擊周遭的多個怪物。` },
           { id: 'pl_threaten', tier: 2, name: '降魔咒', type: '輔助', icon: '😈', maxLv: 20, desc: (lv) => `消耗 MP，威脅範圍內多數敵人，使其造成的傷害降低 ${lvSpan(lv, 20, 1, 20)}%。` },
           { id: 'pl_mastery', tier: 2, name: '精準之劍/棍', type: '被動', icon: '🗡️', maxLv: 20, desc: (lv) => `熟練度提升至 ${10 + lv * 2.5}%。` },
           { id: 'pl_booster', tier: 2, name: '快速之劍/棍', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻擊速度提升 2 階段。` },
@@ -1461,6 +1489,9 @@
           { id: 'pl_ice_charge', tier: 3, name: '寒冰衝擊', type: '輔助', icon: '❄️', maxLv: 30, desc: (lv) => `一定時間內賦予劍或棍冰屬性。` },
           { id: 'pl_lightning_charge', tier: 3, name: '雷鳴衝擊', type: '輔助', icon: '⚡', maxLv: 30, desc: (lv) => `一定時間內賦予劍或棍雷屬性。` },
           { id: 'pl_element_attack', tier: 3, name: '屬性攻擊', type: '主動', icon: '✴️', maxLv: 30, desc: (lv) => `武器充能時，以武器屬性對多名敵人造成魔法傷害。` },
+          { id: 'pl_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'pl_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` },
+          { id: 'pl_magnet', tier: 4, name: '絕對引力', type: '主動', icon: '🧲', maxLv: 30, desc: (lv) => `吸引一定範圍內的遠距離怪物。` },
           { id: 'pl_holy_charge', tier: 4, name: '聖靈之棍', type: '輔助', icon: '✝️', maxLv: 20, desc: (lv) => `一定時間內賦予劍或棍神聖屬性。` },
           { id: 'pl_blast', tier: 4, name: '騎士衝擊波', type: '主動', icon: '💥', maxLv: 30, desc: (lv) => `對單一敵人施展魔法攻擊，傷害 ${lvSpan(lv, 30, 410, 790)}%。` },
           { id: 'pl_heavens_hammer', tier: 4, name: '鬼神之擊', type: '主動', icon: '🔨', maxLv: 30, desc: (lv) => `以巨大鐵鎚敲擊地面，對最多 15 名敵人造成魔法傷害。若傷害達到怪物 HP 的一定比例，其 HP 會變成 1；造成 100% 傷害則直接擊倒。` },
@@ -1492,18 +1523,20 @@
             level: 200,
             note: '一到三轉先點完。三轉槍連擊改為龍爆擊；四轉點滿暗之靈魂、暗之靈魂風暴與格擋。',
             skills: {
-              dk_hp_inc: 10, dk_power_strike: 20, dk_slash_blast: 20, dk_iron_body: 11,
+              dk_hp_rec: 5, dk_hp_inc: 10, dk_hp_restore: 3, dk_iron_body: 11, dk_power_strike: 20, dk_slash_blast: 12,
               dk_spear_mastery: 20, dk_spear_booster: 20, dk_hyper_body: 30, dk_iron_will: 20, dk_final_attack: 30,
               dk_spear_crusher: 30, dk_dragon_fury: 30, dk_dragon_roar: 30, dk_sac: 30, dk_element_res: 20, dk_power_cancel: 11,
-              dk_berserk: 30, dk_beholder: 10, dk_beholder_heal: 25, dk_beholder_buff: 25, dk_stance: 30, dk_rush: 30, dk_soul_storm: 30, dk_maple_warrior: 30
+              dk_beholder: 10, dk_beholder_heal: 25, dk_beholder_buff: 25, dk_stance: 30, dk_rush: 30, dk_soul_storm: 30, dk_maple_warrior: 30
             }
           }
         ],
         skills: [
-          { id: 'dk_hp_inc', tier: 1, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, desc: (lv) => `升級時額外增加最大 HP 上限。` },
-          { id: 'dk_iron_body', tier: 1, name: '自身強化', type: '輔助', icon: '🛡️', maxLv: 20, desc: (lv) => `提升物理防禦力 +${lv * 2}。` },
-          { id: 'dk_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `單體強力攻擊，傷害 ${160 + lv * 5}%。` },
-          { id: 'dk_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `範圍橫掃攻擊，傷害 ${85 + lv * 2.5}%。` },
+          { id: 'dk_hp_rec', tier: 1, name: '生命淨化', type: '被動', icon: '💗', maxLv: 16, desc: (lv) => `自我恢復時能回復更多 HP。移動中可恢復。` },
+          { id: 'dk_hp_inc', tier: 1, name: '生命擴展', type: '被動', icon: '❤️', maxLv: 10, req: { dk_hp_rec: 5 }, desc: (lv) => `等級上升或使用升級點（AP）時，增加 HP 的增血量。` },
+          { id: 'dk_hp_restore', tier: 1, name: '生命恢復', type: '被動', icon: '💚', maxLv: 8, req: { dk_hp_rec: 5, dk_hp_inc: 3 }, desc: (lv) => `提升自我恢復 HP，可與生命淨化疊加。` },
+          { id: 'dk_iron_body', tier: 1, name: '自身強化', type: '輔助', icon: '🛡️', maxLv: 20, req: { dk_hp_rec: 5, dk_hp_inc: 3, dk_hp_restore: 3 }, desc: (lv) => `一定時間內增加物理防禦力。` },
+          { id: 'dk_power_strike', tier: 1, name: '魔天一擊', type: '主動', icon: '⚔️', maxLv: 20, desc: (lv) => `消耗 MP，給予怪物強力一擊。` },
+          { id: 'dk_slash_blast', tier: 1, name: '劍氣縱橫', type: '主動', icon: '🌪️', maxLv: 20, req: { dk_power_strike: 1 }, desc: (lv) => `消耗 HP 和 MP，同時攻擊周遭的多個怪物。` },
           { id: 'dk_spear_mastery', tier: 2, name: '精準之槍', type: '被動', icon: '🔱', maxLv: 20, desc: (lv) => `槍類武器熟練度提升至 ${10 + lv * 2.5}%。` },
           { id: 'dk_spear_booster', tier: 2, name: '快速之槍', type: '輔助', icon: '⚡', maxLv: 20, req: { dk_spear_mastery: 5 }, desc: (lv) => `提升槍類武器攻擊速度 2 階段。` },
           { id: 'dk_iron_will', tier: 2, name: '禦魔陣', type: '輔助', icon: '🔰', maxLv: 20, desc: (lv) => `提升全隊物理與魔法防禦力 +${lv}。` },
@@ -1515,14 +1548,17 @@
           { id: 'dk_dragon_roar', tier: 3, name: '龍咆哮', type: '主動', icon: '📢', maxLv: 30, desc: (lv) => `消耗 HP 震撼全畫面最多 15 名敵人，基礎威力 ${150 + lv * 3}。` },
           { id: 'dk_sac', tier: 3, name: '龍之獻祭', type: '主動', icon: '🩸', maxLv: 30, desc: (lv) => `犧牲 HP 對單體無視防禦重擊。` },
           { id: 'dk_element_res', tier: 3, name: '屬性抗性', type: '被動', icon: '💠', maxLv: 20, desc: (lv) => `所有屬性抗性提升 +${lv * 2}%。` },
-          { id: 'dk_berserk', tier: 4, name: '狂暴', type: '被動', icon: '😈', maxLv: 30, desc: (lv) => `HP 低於 ${20 + Math.floor(lv * 0.67)}% 時，所有攻擊最終傷害提升至 ${120 + Math.floor(lv * 2.67)}%（滿級 200%）。` },
           { id: 'dk_beholder', tier: 4, name: '暗之靈魂', type: '召喚', icon: '👁️', maxLv: 10, desc: (lv) => `召喚暗之靈魂，永久提升武器熟練度。` },
           { id: 'dk_beholder_heal', tier: 4, name: '暗之靈魂的治癒', type: '被動', icon: '💚', maxLv: 25, req: { dk_beholder: 1 }, desc: (lv) => `靈魂定期為主人恢復 HP，方便精準控血。` },
-          { id: 'dk_beholder_buff', tier: 4, name: '暗之靈魂的祝福', type: '被動', icon: '✨', maxLv: 25, req: { dk_beholder: 1 }, desc: (lv) => `靈魂定期施放物理攻擊力、防禦、命中、迴避增益。` },
+          { id: 'dk_beholder_buff', tier: 4, name: '黑暗守護', type: '被動', icon: '🛡️', maxLv: 25, req: { dk_beholder: 1 }, desc: (lv) => `暗之靈魂存在的時間內賦予狀態。隨技能等級提高，物理防禦力、魔法防禦力、物理攻擊力、攻擊速度、無視防禦上升。` },
+          { id: 'dk_sturdy', tier: 4, name: '武神防禦', type: '被動', icon: '🛡️', maxLv: 30, desc: (lv) => `強化自身的物理防禦。` },
           { id: 'dk_stance', tier: 4, name: '格擋', type: '輔助', icon: '🛡️', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 35, 100)}% 機率不被擊退。` },
+          { id: 'dk_magnet', tier: 4, name: '絕對引力', type: '主動', icon: '🧲', maxLv: 30, desc: (lv) => `吸引一定範圍內的遠距離怪物。` },
+          { id: 'dk_god_shield', tier: 4, name: '究極神盾', type: '被動', icon: '🛡️', maxLv: 30, desc: (lv) => `裝備盾牌時，有機率在近距離物理攻擊時擊退敵人，擊退後有 2 秒無敵。` },
           { id: 'dk_rush', tier: 4, name: '究極突刺', type: '主動', icon: '💨', maxLv: 30, desc: (lv) => `朝前方猛烈衝刺，將面前的敵人推開。` },
           { id: 'dk_soul_storm', tier: 4, name: '暗之靈魂風暴', type: '主動', icon: '🌪️', maxLv: 30, req: { dk_beholder: 10 }, desc: (lv) => `以注入暗之靈魂的槍或矛攻擊前方最多 4 名敵人，每人 4 次，每次傷害 ${lvSpan(lv, 30, 27, 125)}%。` },
-          { id: 'dk_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+          { id: 'dk_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'dk_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1546,7 +1582,7 @@
             level: 200,
             note: '一到三轉先點完。三轉點滿致命箭與箭雨，四轉點滿暴風神射、會心之眼與念力集中。',
             skills: {
-              bm_eye: 8, bm_crit: 20, bm_double: 20,
+              bm_archery: 8, bm_eye: 8, bm_crit: 20, bm_arrow_blow: 5, bm_double: 20,
               bm_mastery: 20, bm_booster: 20, bm_soul_arrow: 20, bm_arrow_bomb: 30,
               bm_mortal: 20, bm_fire_arrow: 30, bm_strafe: 30, bm_arrow_rain: 30, bm_puppet: 20,
               bm_sharp_eyes: 30, bm_hurricane: 30, bm_bow_expert: 30, bm_phoenix: 30, bm_pin: 30, bm_concentrate: 30, bm_maple_warrior: 30
@@ -1554,9 +1590,12 @@
           }
         ],
         skills: [
-          { id: 'bm_eye', tier: 1, name: '百步穿楊', type: '被動', icon: '👁️', maxLv: 8, desc: (lv) => `射程 +${lv * 15}。` },
-          { id: 'bm_crit', tier: 1, name: '霸王箭', type: '被動', icon: '🎯', maxLv: 20, req: { bm_eye: 3 }, desc: (lv) => `暴擊率 +${lv * 2}%。` },
-          { id: 'bm_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `連續射出 2 箭。` },
+          { id: 'bm_archery', tier: 1, name: '精準強化', type: '被動', icon: '🎯', maxLv: 16, desc: (lv) => `增加命中率。` },
+          { id: 'bm_eye', tier: 1, name: '百步穿楊', type: '被動', icon: '👁️', maxLv: 8, req: { bm_archery: 3 }, desc: (lv) => `射程 +${lv * 15}。` },
+          { id: 'bm_crit', tier: 1, name: '霸王箭', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `暴擊率 +${lv * 2}%。` },
+          { id: 'bm_focus', tier: 1, name: '集中術', type: '輔助', icon: '🧘', maxLv: 20, req: { bm_archery: 3 }, desc: (lv) => `一定時間內集中精神，增加命中率與迴避率。` },
+          { id: 'bm_arrow_blow', tier: 1, name: '斷魂箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `發射強力的箭矢，對敵人造成較大的殺傷力。` },
+          { id: 'bm_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, req: { bm_arrow_blow: 1 }, desc: (lv) => `一次射出兩枝箭，向怪物發動兩次攻擊。` },
           { id: 'bm_mastery', tier: 2, name: '精準之弓', type: '被動', icon: '📐', maxLv: 20, desc: (lv) => `弓熟練度提升至 ${10 + lv * 2.5}%。` },
           { id: 'bm_booster', tier: 2, name: '快速之弓', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻速提升 2 階段。` },
           { id: 'bm_soul_arrow', tier: 2, name: '無形之箭', type: '輔助', icon: '♾️', maxLv: 20, desc: (lv) => `不消耗箭矢。` },
@@ -1572,7 +1611,8 @@
           { id: 'bm_phoenix', tier: 4, name: '召喚鳳凰', type: '召喚', icon: '🔥', maxLv: 30, desc: (lv) => `召喚火屬性鳳凰，可同時攻擊多隻怪物。灼傷每 1 秒造成技能傷害的 ${lvSpan(lv, 30, 17, 54)}%，持續 ${lvSpan(lv, 30, 5, 15)} 秒。官方前置為銀鷹召喚 15 級。` },
           { id: 'bm_pin', tier: 4, name: '牽制射擊', type: '主動', icon: '🦵', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 70, 100)}% 機率攻擊敵人腿部，使其迴避率降低 ${lvSpan(lv, 30, 1, 10)}。` },
           { id: 'bm_concentrate', tier: 4, name: '念力集中', type: '輔助', icon: '🎯', maxLv: 30, desc: (lv) => `${lvSpan(lv, 30, 184, 300)} 秒內攻擊力 +${lvSpan(lv, 30, 1, 5)}、暴擊率 +${lvSpan(lv, 30, 1, 5)}%。施放 0.2 秒，無冷卻。` },
-          { id: 'bm_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+          { id: 'bm_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'bm_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1596,7 +1636,7 @@
             level: 200,
             note: '一到三轉先點完。四轉點滿必殺狙擊、專注弱點與會心之眼。',
             skills: {
-              mm_eye: 8, mm_crit: 20, mm_double: 20,
+              mm_archery: 8, mm_eye: 8, mm_crit: 20, mm_arrow_blow: 5, mm_double: 20,
               mm_mastery: 20, mm_booster: 20, mm_iron_arrow: 30,
               mm_mortal: 20, mm_strafe: 30, mm_eruption: 30,
               mm_sharp_eyes: 30, mm_snipe: 30, mm_focus: 30, mm_piercing: 30, mm_frostprey: 30
@@ -1604,9 +1644,12 @@
           }
         ],
         skills: [
-          { id: 'mm_eye', tier: 1, name: '百步穿楊', type: '被動', icon: '👁️', maxLv: 8, desc: (lv) => `射程 +${lv * 15}。` },
+          { id: 'mm_archery', tier: 1, name: '精準強化', type: '被動', icon: '🎯', maxLv: 16, desc: (lv) => `增加命中率。` },
+          { id: 'mm_eye', tier: 1, name: '百步穿楊', type: '被動', icon: '👁️', maxLv: 8, req: { mm_archery: 3 }, desc: (lv) => `射程 +${lv * 15}。` },
           { id: 'mm_crit', tier: 1, name: '霸王箭', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `暴擊率 +${lv * 2}%。` },
-          { id: 'mm_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `連續射出 2 箭。` },
+          { id: 'mm_aim', tier: 1, name: '集中術', type: '輔助', icon: '🧘', maxLv: 20, req: { mm_archery: 3 }, desc: (lv) => `一定時間內集中精神，增加命中率與迴避率。` },
+          { id: 'mm_arrow_blow', tier: 1, name: '斷魂箭', type: '主動', icon: '🏹', maxLv: 20, desc: (lv) => `發射強力的箭矢，對敵人造成較大的殺傷力。` },
+          { id: 'mm_double', tier: 1, name: '二連箭', type: '主動', icon: '🏹', maxLv: 20, req: { mm_arrow_blow: 1 }, desc: (lv) => `一次射出兩枝箭，向怪物發動兩次攻擊。` },
           { id: 'mm_mastery', tier: 2, name: '精準之弩', type: '被動', icon: '📐', maxLv: 20, desc: (lv) => `弩熟練度提升。` },
           { id: 'mm_booster', tier: 2, name: '快速之弩', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻速提升 2 階段。` },
           { id: 'mm_iron_arrow', tier: 2, name: '穿透箭', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `直線貫穿多名敵人。` },
@@ -1617,7 +1660,9 @@
           { id: 'mm_snipe', tier: 4, name: '必殺狙擊', type: '主動', icon: '💀', maxLv: 30, desc: (lv) => `鎖定要害攻擊。使用後專注力逐漸累積，每點額外傷害 ${lvSpan(lv, 30, 2.3, 69, 1)}%，上限 ${lvSpan(lv, 30, 10, 15)} 點。受到攻擊時專注力減少 10。` },
           { id: 'mm_focus', tier: 4, name: '專注弱點', type: '輔助', icon: '🎯', maxLv: 30, req: { mm_snipe: 10 }, desc: (lv) => `立即把必殺狙擊的專注力補滿。${lvSpan(lv, 30, 5, 15)} 秒內即使受到攻擊，專注力也不會減少。冷卻 ${lvSpan(lv, 30, 180, 60)} 秒，施放 0.2 秒。` },
           { id: 'mm_piercing', tier: 4, name: '光速神弩', type: '主動', icon: '💫', maxLv: 30, desc: (lv) => `蓄力射出超強貫穿光箭，每多貫穿一隻怪物傷害倍增。` },
-          { id: 'mm_frostprey', tier: 4, name: '召喚銀隼', type: '召喚', icon: '❄️', maxLv: 30, desc: (lv) => `召喚冰屬性銀隼，可同時攻擊多名敵人。官方前置為金鷹召喚 15 級。` }
+          { id: 'mm_frostprey', tier: 4, name: '召喚銀隼', type: '召喚', icon: '❄️', maxLv: 30, desc: (lv) => `召喚冰屬性銀隼，可同時攻擊多名敵人。官方前置為金鷹召喚 15 級。` },
+          { id: 'mm_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'mm_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1650,9 +1695,11 @@
         ],
         skills: [
           { id: 'sh_nimble', tier: 1, name: '幻化術', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `命中與迴避 +${lv}。` },
-          { id: 'sh_double_stab', tier: 1, name: '劈空斬', type: '主動', icon: '🗡️', maxLv: 20, desc: (lv) => `連續刺擊 2 次。` },
-          { id: 'sh_dark_sight', tier: 1, name: '隱身術', type: '輔助', icon: '👤', maxLv: 20, desc: (lv) => `隱身迴避接觸傷害。` },
+          { id: 'sh_keen_eyes', tier: 1, name: '鷹之眼', type: '被動', icon: '🦅', maxLv: 8, req: { sh_nimble: 3 }, desc: (lv) => `增加短刀與暗器的射程距離。` },
           { id: 'sh_curse', tier: 1, name: '詛咒術', type: '輔助', icon: '🌑', maxLv: 20, desc: (lv) => `一定時間內降低敵人物理防禦力 ${lvSpan(lv, 20, 1, 5)}% 與攻擊力。無法對同一敵人重複使用。` },
+          { id: 'sh_dark_sight', tier: 1, name: '隱身術', type: '輔助', icon: '👤', maxLv: 20, desc: (lv) => `隱身迴避接觸傷害。` },
+          { id: 'sh_double_stab', tier: 1, name: '劈空斬', type: '主動', icon: '🗡️', maxLv: 20, desc: (lv) => `消耗 MP，使用短刀連續攻擊怪物兩次。` },
+          { id: 'sh_lucky_seven', tier: 1, name: '雙飛斬', type: '主動', icon: '🌟', maxLv: 20, desc: (lv) => `消耗 MP，發射兩個飛鏢向怪物進行攻擊。` },
           { id: 'sh_mastery', tier: 2, name: '精準之刀', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `短刀熟練度提升。` },
           { id: 'sh_booster', tier: 2, name: '快速之刀', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `短刀攻速提升 2 階段。` },
           { id: 'sh_haste', tier: 2, name: '速度激發', type: '輔助', icon: '👟', maxLv: 20, desc: (lv) => `全隊移動速度 +40、跳躍 +20。` },
@@ -1667,7 +1714,9 @@
           { id: 'sh_boomerang', tier: 4, name: '瞬步連擊', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `高速穿梭於最多 4 名敵人之間造成 2 次超高傷並暈眩。` },
           { id: 'sh_smokescreen', tier: 4, name: '煙霧彈', type: '輔助', icon: '🌫️', maxLv: 30, desc: (lv) => `製造煙霧。範圍內玩家不論是否組隊都不會受到傷害，暴擊率 +${lvSpan(lv, 30, 5, 20)}%。` },
           { id: 'sh_venom', tier: 4, name: '飛毒殺', type: '被動', icon: '☠️', maxLv: 30, desc: (lv) => `攻擊有機率使敵人中毒，可疊加並覆蓋其他玩家的飛毒殺。敵人 HP 不會降到 1 以下。對 BOSS 成功率 ${lvSpan(lv, 30, 11, 20)}%，最多疊加 2 層。` },
-          { id: 'sh_sudden', tier: 4, name: '忍影瞬殺', type: '輔助', icon: '🗡️', maxLv: 30, req: { sh_shifter: 5 }, desc: (lv) => `${lvSpan(lv, 30, 100, 300)} 秒內，${lvSpan(lv, 30, 10, 70)}% 機率對攻擊的敵人追加 1 次攻擊，傷害 ${lvSpan(lv, 30, 60, 120)}%。施放 0.8 秒。` }
+          { id: 'sh_sudden', tier: 4, name: '忍影瞬殺', type: '輔助', icon: '🗡️', maxLv: 30, req: { sh_shifter: 5 }, desc: (lv) => `${lvSpan(lv, 30, 100, 300)} 秒內，${lvSpan(lv, 30, 10, 70)}% 機率對攻擊的敵人追加 1 次攻擊，傷害 ${lvSpan(lv, 30, 60, 120)}%。施放 0.8 秒。` },
+          { id: 'sh_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'sh_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1700,9 +1749,11 @@
         ],
         skills: [
           { id: 'nl_nimble', tier: 1, name: '幻化術', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `命中與迴避 +${lv}。` },
-          { id: 'nl_keen_eyes', tier: 1, name: '鷹之眼', type: '被動', icon: '🦅', maxLv: 8, desc: (lv) => `飛鏢射程 +${lv * 25}。` },
-          { id: 'nl_lucky_seven', tier: 1, name: '雙飛斬', type: '主動', icon: '🌟', maxLv: 20, desc: (lv) => `投擲 2 枚飛鏢。` },
+          { id: 'nl_keen_eyes', tier: 1, name: '鷹之眼', type: '被動', icon: '🦅', maxLv: 8, req: { nl_nimble: 3 }, desc: (lv) => `飛鏢射程 +${lv * 25}。` },
           { id: 'nl_curse', tier: 1, name: '詛咒術', type: '輔助', icon: '🌑', maxLv: 20, desc: (lv) => `一定時間內降低敵人物理防禦力 ${lvSpan(lv, 20, 1, 5)}% 與攻擊力。無法對同一敵人重複使用。` },
+          { id: 'nl_dark_sight', tier: 1, name: '隱身術', type: '輔助', icon: '👤', maxLv: 20, desc: (lv) => `一定時間內隱身，不會受到怪物碰撞傷害。` },
+          { id: 'nl_double_stab', tier: 1, name: '劈空斬', type: '主動', icon: '🗡️', maxLv: 20, desc: (lv) => `消耗 MP，使用短刀連續攻擊怪物兩次。` },
+          { id: 'nl_lucky_seven', tier: 1, name: '雙飛斬', type: '主動', icon: '🌟', maxLv: 20, desc: (lv) => `投擲 2 枚飛鏢。` },
           { id: 'nl_mastery', tier: 2, name: '精準暗器', type: '被動', icon: '🎯', maxLv: 20, desc: (lv) => `拳套熟練度提升。` },
           { id: 'nl_recovery', tier: 2, name: '恢復術', type: '被動', icon: '💚', maxLv: 20, desc: (lv) => `提升自我恢復 HP 與 MP 的能力。` },
           { id: 'nl_crit', tier: 2, name: '強力投擲', type: '被動', icon: '💥', maxLv: 30, desc: (lv) => `暴擊率 +50%、暴擊傷害大幅提升。` },
@@ -1714,7 +1765,8 @@
           { id: 'nl_shadow_shifter', tier: 4, name: '瞬身迴避', type: '被動', icon: '👤', maxLv: 30, desc: (lv) => `利用木偶欺敵，使攻擊無效化。` },
           { id: 'nl_venom', tier: 4, name: '飛毒殺', type: '被動', icon: '☠️', maxLv: 30, desc: (lv) => `攻擊有機率使敵人中毒，可疊加並覆蓋其他玩家的飛毒殺。敵人 HP 不會降到 1 以下。對 BOSS 成功率 ${lvSpan(lv, 30, 11, 20)}%，最多疊加 2 層。` },
           { id: 'nl_sudden', tier: 4, name: '忍影瞬殺', type: '輔助', icon: '🗡️', maxLv: 30, req: { nl_shadow_shifter: 5 }, desc: (lv) => `${lvSpan(lv, 30, 100, 300)} 秒內，${lvSpan(lv, 30, 10, 70)}% 機率對攻擊的敵人追加 1 次攻擊，傷害 ${lvSpan(lv, 30, 90, 150)}%。施放 0.8 秒。` },
-          { id: 'nl_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` }
+          { id: 'nl_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'nl_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1738,7 +1790,7 @@
             level: 200,
             note: '一到三轉先點完。四轉點滿鬥神降世、閃．爆破、閃．連殺與最終極速。',
             skills: {
-              bc_straight: 20, bc_somersault: 20,
+              bc_nimble: 20, bc_straight: 20, bc_somersault: 20, bc_dash: 1,
               bc_dragon_fist: 20, bc_rush: 20, bc_mastery: 20, bc_booster: 20,
               bc_stun_mastery: 20, bc_transformation: 20, bc_energy_charge: 40, bc_shockwave: 30,
               bc_super: 20, bc_demolition: 30, bc_snatch: 30, bc_barrage: 30, bc_dragon_strike: 30, bc_speed_infusion: 20, bc_time_leap: 30
@@ -1746,8 +1798,11 @@
           }
         ],
         skills: [
-          { id: 'bc_straight', tier: 1, name: '半月踢', type: '主動', icon: '👊', maxLv: 20, desc: (lv) => `單體重拳。` },
-          { id: 'bc_somersault', tier: 1, name: '旋風斬', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `範圍迴旋踢。` },
+          { id: 'bc_nimble', tier: 1, name: '極限迴避', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `增加命中率與迴避率。` },
+          { id: 'bc_straight', tier: 1, name: '半月踢', type: '主動', icon: '👊', maxLv: 20, desc: (lv) => `以拳頭快速攻擊單一敵人。` },
+          { id: 'bc_somersault', tier: 1, name: '旋風斬', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `跳躍動作向後旋轉，同時以腿部向週遭的多個敵人展開攻擊。` },
+          { id: 'bc_double', tier: 1, name: '雙子星攻擊', type: '主動', icon: '🔫', maxLv: 20, desc: (lv) => `一次發射兩顆子彈來攻擊敵人。` },
+          { id: 'bc_dash', tier: 1, name: '衝鋒', type: '輔助', icon: '👟', maxLv: 10, desc: (lv) => `暫時提升移動速度與跳躍力。` },
           { id: 'bc_dragon_fist', tier: 2, name: '昇龍拳', type: '主動', icon: '👊', maxLv: 20, desc: (lv) => `快速揮拳攻擊最多 ${lvSpan(lv, 20, 4, 6)} 名敵人 2 次並使其暈眩，每次傷害 ${lvSpan(lv, 20, 36, 100)}%。施放 ${lvSpan(lv, 20, 0.63, 0.96, 2)} 秒。` },
           { id: 'bc_rush', tier: 2, name: '狂暴衝擊', type: '主動', icon: '💨', maxLv: 20, desc: (lv) => `向前衝刺並對前方多名敵人揮拳。按住技能鍵越久，傷害越高。` },
           { id: 'bc_mastery', tier: 2, name: '精準之拳', type: '被動', icon: '🥊', maxLv: 20, desc: (lv) => `指虎熟練度提升。` },
@@ -1762,7 +1817,9 @@
           { id: 'bc_barrage', tier: 4, name: '閃．連殺', type: '主動', icon: '⚡', maxLv: 30, desc: (lv) => `以極快速度連續攻擊近距離最多 2 名敵人 6 次。` },
           { id: 'bc_dragon_strike', tier: 4, name: '魔龍降臨', type: '主動', icon: '🐉', maxLv: 30, desc: (lv) => `喚醒地底之龍，對多名敵人造成暈眩與傷害。` },
           { id: 'bc_speed_infusion', tier: 4, name: '最終極速', type: '輔助', icon: '🚀', maxLv: 20, req: { bc_booster: 20 }, desc: (lv) => `消耗 HP ${lvSpan(lv, 20, 78, 40)} 與 MP，一定時間內使全隊武器攻擊速度再提升 1 階段，可與原本的加速疊加。` },
-          { id: 'bc_time_leap', tier: 4, name: '時間置換', type: '輔助', icon: '⏳', maxLv: 30, desc: (lv) => `重置自己與隊友的技能冷卻。無法重置時間置換本身。` }
+          { id: 'bc_time_leap', tier: 4, name: '時間置換', type: '輔助', icon: '⏳', maxLv: 30, desc: (lv) => `重置自己與隊友的技能冷卻。無法重置時間置換本身。` },
+          { id: 'bc_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'bc_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       },
 
@@ -1786,7 +1843,7 @@
             level: 200,
             note: '一、二轉先點完。三轉把指定攻擊與章魚砲台點滿，四轉點滿海鷗特戰隊、瞬‧迅雷與海盜船。',
             skills: {
-              cs_double_fire: 20,
+              cs_nimble: 20, cs_straight: 11, cs_double_fire: 20, cs_dash: 10,
               cs_mastery: 20, cs_booster: 20, cs_wings: 10, cs_grenade: 20, cs_fake: 20, cs_recoil: 20,
               cs_triple: 20, cs_octopus: 30, cs_air_strike: 30, cs_flame: 21, cs_ice: 20, cs_homing: 30,
               cs_battleship: 10, cs_cannon: 30, cs_torpedo: 30, cs_rapid_fire: 30, cs_element_boost: 30, cs_octopus_king: 20, cs_bullseye: 20, cs_gaviota: 30
@@ -1794,7 +1851,11 @@
           }
         ],
         skills: [
+          { id: 'cs_nimble', tier: 1, name: '極限迴避', type: '被動', icon: '💨', maxLv: 20, desc: (lv) => `增加命中率與迴避率。` },
+          { id: 'cs_straight', tier: 1, name: '衝擊拳', type: '主動', icon: '👊', maxLv: 20, desc: (lv) => `以拳頭快速攻擊單一敵人。` },
+          { id: 'cs_somersault', tier: 1, name: '旋風斬', type: '主動', icon: '🌪️', maxLv: 20, desc: (lv) => `跳躍動作向後旋轉，同時以腿部向週遭的多個敵人展開攻擊。` },
           { id: 'cs_double_fire', tier: 1, name: '雙子星攻擊', type: '主動', icon: '🔫', maxLv: 20, desc: (lv) => `一次發射兩發子彈。` },
+          { id: 'cs_dash', tier: 1, name: '衝鋒', type: '輔助', icon: '👟', maxLv: 10, desc: (lv) => `暫時提升移動速度與跳躍力。` },
           { id: 'cs_grenade', tier: 2, name: '炸彈投擲', type: '主動', icon: '💣', maxLv: 20, desc: (lv) => `投擲炸彈。被擊中的怪物造成的傷害降低 5%，對 BOSS 也有效。` },
           { id: 'cs_fake', tier: 2, name: '偽裝射擊', type: '主動', icon: '🚩', maxLv: 20, desc: (lv) => `發射旗幟代替子彈，使最多 3 名敵人陷入驚慌無法行動。` },
           { id: 'cs_recoil', tier: 2, name: '脫離戰場', type: '主動', icon: '💨', maxLv: 20, desc: (lv) => `射擊並利用後座力大幅向後移動。官方前置為緩降術 5 級。` },
@@ -1814,7 +1875,9 @@
           { id: 'cs_battleship', tier: 4, name: '海盜船', type: '輔助', icon: '🚢', maxLv: 10, desc: (lv) => `登上海盜船。受到傷害會降低耐久，耐久歸零後一段時間無法搭乘。船上可使用火焰噴射、寒霜噴射、炸彈投擲、指定攻擊與章魚砲台。` },
           { id: 'cs_cannon', tier: 4, name: '海盜加農炮', type: '主動', icon: '💣', maxLv: 30, req: { cs_battleship: 1 }, desc: (lv) => `連續發射多發砲彈。只能在海盜船上使用。` },
           { id: 'cs_torpedo', tier: 4, name: '海盜船魚雷', type: '主動', icon: '🚀', maxLv: 30, req: { cs_battleship: 1 }, desc: (lv) => `海盜船專用，發射貫穿魚雷攻擊最多 6 名敵人。` },
-          { id: 'cs_rapid_fire', tier: 4, name: '瞬‧迅雷', type: '主動', icon: '⚡', maxLv: 30, req: { cs_triple: 20 }, desc: (lv) => `以極快速度發射子彈。按住技能鍵可持續發射。` }
+          { id: 'cs_rapid_fire', tier: 4, name: '瞬‧迅雷', type: '主動', icon: '⚡', maxLv: 30, req: { cs_triple: 20 }, desc: (lv) => `以極快速度發射子彈。按住技能鍵可持續發射。` },
+          { id: 'cs_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
+          { id: 'cs_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` }
         ]
       }
     };
@@ -1995,7 +2058,9 @@
       bs_mp_rec: 'images/magicPurify.png',
       bs_mp_inc: 'icons/bishop/2000001.png',
       bs_magic_guard: 'images/magicGuard.png',
-      bs_magic_claw: 'images/magicArrow.png',
+      bs_magic_armor: 'images/magicShield.png',
+      bs_magic_arrow: 'images/magicArrow.png',
+      bs_magic_claw: 'images/magicClaw.png',
       bs_teleport: 'images/teleport.png',
       bs_heal: 'images/massHeal.png',
       bs_invincible: 'images/holyLight.png',
@@ -2009,6 +2074,7 @@
       bs_shining_ray: 'images/shiningRay.png',
       bs_summon_dragon: 'icons/bishop/2311006.png',
       bs_maple_warrior: 'images/mapleWarrior.png',
+      bs_hero_will: 'images/heroesWill.png',
       bs_genesis: 'icons/bishop/2321008.png',
       bs_bahamut: 'icons/bishop/2321003.png',
       bs_resurrection: 'icons/bishop/2321006.png',
@@ -2021,7 +2087,9 @@
       fp_mp_rec: 'images/magicPurify.png',
       fp_mp_inc: 'icons/archmage-fp/fp_mp_inc.png',
       fp_magic_guard: 'images/magicGuard.png',
-      fp_magic_claw: 'images/magicArrow.png',
+      fp_magic_armor: 'images/magicShield.png',
+      fp_magic_arrow: 'images/magicArrow.png',
+      fp_magic_claw: 'images/magicClaw.png',
       fp_poison_master1: 'icons/archmage-fp/fp_poison_master1.png',
       fp_teleport: 'images/teleport.png',
       fp_meditation: 'images/mentalClarity.png',
@@ -2034,6 +2102,7 @@
       fp_magic_comp: 'icons/archmage-fp/fp_magic_comp.png',
       fp_poison_master3: 'icons/archmage-fp/fp_poison_master3.png',
       fp_maple_warrior: 'images/mapleWarrior.png',
+      fp_hero_will: 'images/heroesWill.png',
       fp_meteor: 'icons/archmage-fp/fp_meteor.png',
       fp_ifrit: 'images/summonIfritI.png',
       fp_paralyze: 'icons/archmage-fp/fp_paralyze.png',
@@ -2043,7 +2112,9 @@
       il_mp_rec: 'images/magicPurify.png',
       il_mp_inc: 'icons/archmage-il/2000001.png',
       il_magic_guard: 'images/magicGuard.png',
-      il_magic_claw: 'images/magicArrow.png',
+      il_magic_armor: 'images/magicShield.png',
+      il_magic_arrow: 'images/magicArrow.png',
+      il_magic_claw: 'images/magicClaw.png',
       il_teleport: 'images/teleport.png',
       il_meditation: 'images/mentalClarity.png',
       il_cold_beam: 'images/iceBolt.png',
@@ -2060,7 +2131,11 @@
       il_chain_lightning: 'icons/archmage-il/2221006.png',
       il_elquines: 'images/summonIfritF.png',
       il_maple_warrior: 'images/mapleWarrior.png',
+      il_hero_will: 'images/heroesWill.png',
+      hr_hp_rec: 'images/hpRecovery.png',
       hr_hp_inc: 'images/hpBoost.png',
+      hr_hp_restore: 'images/hpRestore.png',
+      hr_iron_body: 'images/ironBody.png',
       hr_power_strike: 'images/slashBlast.png',
       hr_slash_blast: 'images/powerStrike.png',
       hr_sword_mastery: 'images/swordMastery.png',
@@ -2076,6 +2151,14 @@
       hr_stance: 'icons/hero/1121002.png',
       hr_combo_burst: 'icons/hero/1121010.png',
       hr_maple_warrior: 'images/mapleWarrior.png',
+      hr_hero_will: 'images/heroesWill.png',
+      hr_sturdy: 'images/sturdyArmor.png',
+      hr_magnet: 'images/absolutecity.png',
+      hr_god_shield: 'images/ultimateShield.png',
+      pl_hp_rec: 'images/hpRecovery.png',
+      pl_hp_inc: 'images/hpBoost.png',
+      pl_hp_restore: 'images/hpRestore.png',
+      pl_iron_body: 'images/ironBody.png',
       pl_power_strike: 'images/slashBlast.png',
       pl_slash_blast: 'images/powerStrike.png',
       pl_threaten: 'icons/paladin/1201006.png',
@@ -2094,8 +2177,13 @@
       pl_shield_power: 'icons/paladin/1220000.png',
       pl_element_enhance: 'icons/paladin/1220010.png',
       pl_divine_guard: 'icons/paladin/1221005.png',
+      pl_maple_warrior: 'images/mapleWarrior.png',
+      pl_hero_will: 'images/heroesWill.png',
+      pl_magnet: 'images/absolutecity.png',
       pl_rush: 'icons/paladin/1221007.png',
+      dk_hp_rec: 'images/hpRecovery.png',
       dk_hp_inc: 'images/hpBoost.png',
+      dk_hp_restore: 'images/hpRestore.png',
       dk_iron_body: 'images/ironBody.png',
       dk_power_strike: 'images/slashBlast.png',
       dk_slash_blast: 'images/powerStrike.png',
@@ -2110,15 +2198,21 @@
       dk_dragon_roar: 'images/dragonRoar.png',
       dk_sac: 'images/dragonSacrifice.png',
       dk_element_res: 'images/magicResistance.png',
-      dk_berserk: 'images/darkSoul.png',
       dk_beholder: 'icons/darkknight/1321007.png',
       dk_beholder_heal: 'images/darkSpiritHeal.png',
-      dk_beholder_buff: 'images/darkForce.png',
+      dk_beholder_buff: 'images/darkGuardian.png',
       dk_stance: 'icons/darkknight/1321002.png',
       dk_rush: 'icons/darkknight/1321003.png',
       dk_soul_storm: 'icons/darkknight/1321005.png',
       dk_maple_warrior: 'images/mapleWarrior.png',
+      dk_hero_will: 'images/heroesWill.png',
+      dk_sturdy: 'images/sturdyArmor.png',
+      dk_magnet: 'images/absolutecity.png',
+      dk_god_shield: 'images/ultimateShield.png',
+      bm_archery: 'images/archeryMastery.png',
       bm_eye: 'images/eyeOfTheAmazon.png',
+      bm_focus: 'images/focus.png',
+      bm_arrow_blow: 'images/arrowBlow.png',
       bm_crit: 'images/criticalShot.png',
       bm_double: 'images/doubleShot.png',
       bm_mastery: 'images/bowMastery.png',
@@ -2137,7 +2231,11 @@
       bm_pin: 'icons/bowmaster/3121007.png',
       bm_concentrate: 'icons/bowmaster/3121008.png',
       bm_maple_warrior: 'images/mapleWarrior.png',
+      bm_hero_will: 'images/heroesWill.png',
+      mm_archery: 'images/archeryMastery.png',
       mm_eye: 'images/eyeOfTheAmazon.png',
+      mm_aim: 'images/focus.png',
+      mm_arrow_blow: 'images/arrowBlow.png',
       mm_crit: 'images/criticalShot.png',
       mm_double: 'images/doubleShot.png',
       mm_mastery: 'images/crossbowMastery.png',
@@ -2151,7 +2249,11 @@
       mm_focus: 'icons/marksman/3221006.png',
       mm_piercing: 'images/piercingArrowMarksman.png',
       mm_frostprey: 'icons/marksman/3221005.png',
+      mm_maple_warrior: 'images/mapleWarrior.png',
+      mm_hero_will: 'images/heroesWill.png',
       sh_nimble: 'images/haste.png',
+      sh_keen_eyes: 'images/keenEyes.png',
+      sh_lucky_seven: 'images/luckySeven.png',
       sh_double_stab: 'images/doubleStab.png',
       sh_dark_sight: 'images/darkSight.png',
       sh_curse: 'icons/shadower/4001002.png',
@@ -2170,7 +2272,11 @@
       sh_smokescreen: 'icons/shadower/4221006.png',
       sh_venom: 'icons/shadower/4220005.png',
       sh_sudden: 'icons/shadower/4221004.png',
+      sh_maple_warrior: 'images/mapleWarrior.png',
+      sh_hero_will: 'images/heroesWill.png',
       nl_nimble: 'images/haste.png',
+      nl_dark_sight: 'images/darkSight.png',
+      nl_double_stab: 'images/doubleStab.png',
       nl_keen_eyes: 'images/keenEyes.png',
       nl_lucky_seven: 'images/luckySeven.png',
       nl_curse: 'icons/nightlord/4001002.png',
@@ -2186,7 +2292,11 @@
       nl_venom: 'icons/nightlord/4120005.png',
       nl_sudden: 'icons/nightlord/4121004.png',
       nl_maple_warrior: 'images/mapleWarrior.png',
+      nl_hero_will: 'images/heroesWill.png',
+      bc_nimble: 'images/nimbleBody.png',
       bc_straight: 'images/straightPunch.png',
+      bc_double: 'images/doubleShotPirate.png',
+      bc_dash: 'images/dash.png',
       bc_somersault: 'images/somersaultKick.png',
       bc_dragon_fist: 'icons/viper/5101003.png',
       bc_rush: 'icons/viper/5101004.png',
@@ -2201,8 +2311,14 @@
       bc_snatch: 'icons/viper/5121005.png',
       bc_speed_infusion: 'icons/viper/5121009.png',
       bc_time_leap: 'icons/viper/5121010.png',
+      bc_maple_warrior: 'images/mapleWarrior.png',
+      bc_hero_will: 'images/heroesWill.png',
       bc_barrage: 'icons/viper/5121007.png',
       bc_dragon_strike: 'icons/viper/5121001.png',
+      cs_nimble: 'images/nimbleBody.png',
+      cs_straight: 'images/straightPunch.png',
+      cs_somersault: 'images/somersaultKick.png',
+      cs_dash: 'images/dash.png',
       cs_double_fire: 'icons/captain/5001003.png',
       cs_grenade: 'icons/captain/5201002.png',
       cs_fake: 'icons/captain/5201004.png',
@@ -2224,6 +2340,8 @@
       cs_cannon: 'icons/captain/5221007.png',
       cs_torpedo: 'images/pirateTorpedo.png',
       cs_rapid_fire: 'icons/captain/5221004.png',
+      cs_maple_warrior: 'images/mapleWarrior.png',
+      cs_hero_will: 'images/heroesWill.png',
     };
 
     function lvSpan(lv, maxLv, start, end, digits) {
@@ -2236,7 +2354,7 @@
     function skillIconHtml(sk) {
       const file = SKILL_ICONS[sk.id];
       if (!file) return `<span class="skill-icon skill-icon-fallback">${sk.icon}</span>`;
-      const src = file.startsWith("icons/") ? file : `${SKILL_ICON_BASE}${file}`;
+      const src = file.startsWith('icons/') || file.startsWith('http') ? file : `${SKILL_ICON_BASE}${file}`;
       return `<img class="skill-icon" src="${src}" alt="">`;
     }
 
