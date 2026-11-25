@@ -779,6 +779,7 @@
             <li>一轉補回原本就有、先前清單漏掉的技能。黑騎士會看到完整的生命淨化、生命擴展、生命恢復、自身強化、魔天一擊、劍氣縱橫，其他冒險家職業的一轉也一併補上。官方改版刪掉或改名的技能維持現況。</li>
             <li>黑騎士拿掉多出來的狂暴，改回黑暗守護，並排到暗之靈魂、暗之靈魂的治癒後面。</li>
             <li>補回全職業四轉共通的楓葉祝福、楓葉淨化。英雄與黑騎士補武神防禦、絕對引力、究極神盾。聖騎士的武神防禦與究極神盾依官方刪除，盾牌攻擊改由盾牌之力負責。</li>
+            <li>聖騎士三轉補上魔力恢復、魔防消除，並把盾防精通、祝福護甲放回三轉。</li>
           </ul>
         </div>
         <div class="log-item">
@@ -1467,8 +1468,8 @@
             note: '一到三轉先點完。四轉點滿騎士衝擊波、鬼神之擊、屬性強化與聖騎士防禦。',
             skills: {
               pl_hp_rec: 16, pl_hp_inc: 5, pl_power_strike: 20, pl_slash_blast: 20,
-              pl_threaten: 20, pl_mastery: 20, pl_booster: 20, pl_shield_mastery: 20, pl_bless_armor: 20,
-              pl_fire_charge: 30, pl_ice_charge: 30, pl_lightning_charge: 30, pl_element_attack: 30,
+              pl_threaten: 20, pl_mastery: 20, pl_booster: 20,
+              pl_shield_mastery: 20, pl_bless_armor: 11, pl_fire_charge: 30, pl_ice_charge: 30, pl_lightning_charge: 30, pl_element_attack: 30,
               pl_holy_charge: 20, pl_blast: 30, pl_heavens_hammer: 30, pl_stance: 30, pl_shield_power: 10, pl_element_enhance: 10, pl_divine_guard: 30, pl_rush: 30
             }
           }
@@ -1483,12 +1484,14 @@
           { id: 'pl_threaten', tier: 2, name: '降魔咒', type: '輔助', icon: '😈', maxLv: 20, desc: (lv) => `消耗 MP，威脅範圍內多數敵人，使其造成的傷害降低 ${lvSpan(lv, 20, 1, 20)}%。` },
           { id: 'pl_mastery', tier: 2, name: '精準之劍/棍', type: '被動', icon: '🗡️', maxLv: 20, desc: (lv) => `熟練度提升至 ${10 + lv * 2.5}%。` },
           { id: 'pl_booster', tier: 2, name: '快速之劍/棍', type: '輔助', icon: '⚡', maxLv: 20, desc: (lv) => `攻擊速度提升 2 階段。` },
-          { id: 'pl_shield_mastery', tier: 2, name: '盾防精通', type: '被動', icon: '🛡️', maxLv: 20, desc: (lv) => `提升所裝備盾牌的防禦力。未裝備盾牌時無效。` },
-          { id: 'pl_bless_armor', tier: 2, name: '祝福護甲', type: '被動', icon: '✨', maxLv: 20, desc: (lv) => `永久減少受到的傷害 ${lvSpan(lv, 20, 0.5, 10, 1)}%。` },
+          { id: 'pl_mp_rec', tier: 3, name: '魔力恢復', type: '被動', icon: '💧', maxLv: 20, desc: (lv) => `每 10 秒額外恢復 MP +${lv * 2}。` },
+          { id: 'pl_shield_mastery', tier: 3, name: '盾防精通', type: '被動', icon: '🛡️', maxLv: 20, desc: (lv) => `提升所裝備盾牌的防禦力。未裝備盾牌時無效。` },
+          { id: 'pl_element_attack', tier: 3, name: '屬性攻擊', type: '主動', icon: '✴️', maxLv: 30, desc: (lv) => `武器充能時，以武器屬性對多名敵人造成魔法傷害。` },
           { id: 'pl_fire_charge', tier: 3, name: '烈焰衝擊', type: '輔助', icon: '🔥', maxLv: 30, desc: (lv) => `一定時間內賦予劍或棍火焰屬性。` },
           { id: 'pl_ice_charge', tier: 3, name: '寒冰衝擊', type: '輔助', icon: '❄️', maxLv: 30, desc: (lv) => `一定時間內賦予劍或棍冰屬性。` },
           { id: 'pl_lightning_charge', tier: 3, name: '雷鳴衝擊', type: '輔助', icon: '⚡', maxLv: 30, desc: (lv) => `一定時間內賦予劍或棍雷屬性。` },
-          { id: 'pl_element_attack', tier: 3, name: '屬性攻擊', type: '主動', icon: '✴️', maxLv: 30, desc: (lv) => `武器充能時，以武器屬性對多名敵人造成魔法傷害。` },
+          { id: 'pl_magic_crash', tier: 3, name: '魔防消除', type: '輔助', icon: '🔰', maxLv: 20, desc: (lv) => `一定時間內解除敵人的魔法防禦，並使其暫時無法再次使用。` },
+          { id: 'pl_bless_armor', tier: 3, name: '祝福護甲', type: '被動', icon: '✨', maxLv: 20, desc: (lv) => `永久減少受到的傷害 ${lvSpan(lv, 20, 0.5, 10, 1)}%。` },
           { id: 'pl_maple_warrior', tier: 4, name: '楓葉祝福', type: '輔助', icon: '🍁', maxLv: 30, desc: (lv) => `全隊所有屬性提升 +${Math.ceil(lv/2)}%。` },
           { id: 'pl_hero_will', tier: 4, name: '楓葉淨化', type: '輔助', icon: '🍁', maxLv: 1, desc: () => `解除異常狀態。等級越高可解除的種類越多，冷卻越短。` },
           { id: 'pl_magnet', tier: 4, name: '絕對引力', type: '主動', icon: '🧲', maxLv: 30, desc: (lv) => `吸引一定範圍內的遠距離怪物。` },
@@ -2165,6 +2168,8 @@
       pl_mastery: 'images/swordMastery.png',
       pl_booster: 'images/swordBooster.png',
       pl_shield_mastery: 'icons/paladin/1210001.png',
+      pl_mp_rec: 'images/mpRecoveryKnight.png',
+      pl_magic_crash: 'images/magicCrash.png',
       pl_bless_armor: 'icons/paladin/1210016.png',
       pl_fire_charge: 'icons/paladin/1211004.png',
       pl_ice_charge: 'icons/paladin/1211006.png',
