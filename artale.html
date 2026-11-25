@@ -1551,7 +1551,17 @@
       corsair: 'Corsair_color.png'
     };
 
+    const JOB_BIG_ICONS = {
+      dawn_warrior: 'icons/bigicon/soulmaster.jfif',
+      blaze_wizard: 'icons/bigicon/flamewizard.jfif',
+      wind_archer: 'icons/bigicon/windbreaker.jfif',
+      night_walker: 'icons/bigicon/nightwalker.jfif',
+      thunder_breaker: 'icons/bigicon/striker.jfif'
+    };
+
     function jobMarkHtml(job) {
+      const big = JOB_BIG_ICONS[job.id];
+      if (big) return `<img src="${big}" alt="${job.name}">`;
       const file = JOB_EMBLEMS[job.id];
       if (file) return `<img src="${EMBLEM_BASE}${file}" alt="${job.name}">`;
       return `<span class="job-emoji">${job.icon}</span>`;
@@ -2180,9 +2190,12 @@
         ? `皇家騎士團 (Lv.${job.maxLevel} 上限・${tierSpan})`
         : `冒險家 (Lv.${job.maxLevel} 上限・${tierSpan})`;
 
-      els.selectedJobIcon.innerHTML = emblem
-        ? `<img src="${EMBLEM_BASE}${emblem}" alt="">`
-        : job.icon;
+      const bigIcon = JOB_BIG_ICONS[job.id];
+      els.selectedJobIcon.innerHTML = bigIcon
+        ? `<img src="${bigIcon}" alt="">`
+        : emblem
+          ? `<img src="${EMBLEM_BASE}${emblem}" alt="">`
+          : job.icon;
       els.selectedJobName.textContent = job.name;
       els.selectedJobSub.textContent = job.category;
       els.selectedJobDesc.textContent = job.desc;
