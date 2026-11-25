@@ -471,65 +471,21 @@
     }
     .site-footer code { color: var(--brown-deep); }
     #sim-view { width: 100%; }
-    .cover-actions { margin-top: 18px; }
-    .board-tools {
+    .board-status { margin: 14px 0 0; text-align: center; color: var(--ink-soft); font-size: 0.85rem; }
+    .save-list { display: flex; flex-direction: column; gap: 10px; }
+    .save-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .board-tools select,
-    .board-tools input {
-      border: 1px solid var(--brown);
-      border-radius: 8px;
-      background: #fff;
-      padding: 8px 12px;
-      font-family: inherit;
-      color: var(--ink);
-    }
-    .board-tools select { min-width: 140px; }
-    .board-tools input { flex: 1; min-width: 180px; }
-    .build-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    .build-card {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 148px;
-      padding: 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
       background: rgba(255, 252, 245, 0.9);
       border: 1px solid #d7c4a8;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
-    .build-card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .build-card-top .btn { flex: none; white-space: nowrap; }
-    .build-card h3 {
-      margin: 0;
-      font-family: "Noto Serif TC", serif;
-      font-size: 1.02rem;
-      line-height: 1.45;
-      color: var(--ink);
-    }
-    .build-card p {
-      margin: 0;
-      flex: 1;
-      color: var(--ink-soft);
-      font-size: 0.9rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .board-status { margin: 14px 0 0; text-align: center; color: var(--ink-soft); font-size: 0.85rem; }
+    .save-row h3 { margin: 0 0 4px; font-size: 1rem; color: var(--ink); }
+    .save-row p { margin: 0; color: var(--ink-soft); font-size: 0.85rem; }
+    .save-row-actions { display: flex; gap: 8px; flex: none; }
     .share-form { display: flex; flex-direction: column; gap: 8px; }
     .share-form label { font-weight: 700; color: var(--ink); font-size: 0.88rem; }
     .share-form input,
@@ -643,7 +599,7 @@
 
     @media (max-width: 860px) {
       .job-grid { grid-template-columns: repeat(3, 1fr); }
-      .build-grid { grid-template-columns: 1fr; }
+      .save-row { flex-direction: column; align-items: stretch; }
       .workspace { flex-direction: column; }
       .summary { width: 100%; position: static; }
       .job-card img, .job-emoji { width: 84px; height: 84px; }
@@ -685,28 +641,11 @@
           </button>
         </div>
       <div id="job-grid" class="job-grid"></div>
-      <div class="section-tools cover-actions">
-        <button id="btn-open-board" class="btn btn-blue" type="button">推薦文列表</button>
-      </div>
-    </section>
-
-    <section id="board-view" class="paper-section hidden">
-      <h2 class="section-heading">推薦文列表</h2>
-      <div class="board-tools">
-        <select id="board-job-filter" aria-label="篩選職業">
-          <option value="all">所有職業</option>
-        </select>
-        <input id="board-search" type="search" placeholder="搜尋標題或描述中的關鍵字...">
-        <button id="btn-board-back" class="btn btn-ghost" type="button">返回封面</button>
-      </div>
-      <div id="build-grid" class="build-grid"></div>
-      <p id="board-status" class="board-status"></p>
     </section>
 
     <div id="sim-view" class="hidden">
     <div class="section-tools">
       <button id="btn-back-cover" class="btn btn-ghost" type="button">返回封面</button>
-      <button id="btn-open-board-sim" class="btn btn-blue" type="button">推薦文列表</button>
             </div>
     <section class="controls">
       <div class="current-job">
@@ -770,31 +709,41 @@
     </footer>
             </div>
 
-  <div id="modal-share" class="modal hidden">
+  <div id="modal-save" class="modal hidden">
     <div class="modal-card narrow">
       <div class="modal-head">
         <div>
-          <h3>分享這份配點</h3>
-          <p>會開啟 GitHub 建立一篇公開文章。送出之後，大家就能在推薦文列表看到。</p>
+          <h3>儲存配點</h3>
+          <p>填上名字後，配點會寫進這台瀏覽器的 cookie。下次打開會直接回到這份配點。同一個名字再存一次會更新原紀錄。</p>
         </div>
-        <button id="btn-close-share" class="icon-x" type="button">✕</button>
+        <button id="btn-close-save" class="icon-x" type="button">✕</button>
       </div>
       <div class="modal-body">
-        <form id="share-form" class="share-form">
-          <label for="share-title">標題</label>
-          <input id="share-title" type="text" maxlength="80" required placeholder="例如：標準輔助型">
-          <label for="share-author">作者</label>
-          <input id="share-author" type="text" maxlength="40" required placeholder="你的名字">
-          <label for="share-note">說明</label>
-          <textarea id="share-note" maxlength="400" placeholder="這份配點怎麼用"></textarea>
+        <form id="save-form" class="share-form">
+          <label for="save-name">名字</label>
+          <input id="save-name" type="text" maxlength="40" required placeholder="你的名字">
         </form>
-    </div>
-      <div class="modal-foot">
-        <button id="btn-copy-share" class="btn btn-ghost" type="button">只複製連結</button>
-        <button id="btn-publish-share" class="btn btn-blue" type="button">存到 GitHub</button>
-        </div>
-        </div>
       </div>
+      <div class="modal-foot">
+        <button id="btn-confirm-save" class="btn btn-green" type="button">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-load" class="modal hidden">
+    <div class="modal-card narrow">
+      <div class="modal-head">
+        <div>
+          <h3>讀取存檔</h3>
+          <p>選擇要載入的配點。</p>
+        </div>
+        <button id="btn-close-load" class="icon-x" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="save-list" class="save-list"></div>
+      </div>
+    </div>
+  </div>
 
   <div id="toast-container" class="toast-stack"></div>
 
@@ -825,16 +774,27 @@
       </div>
       <div class="modal-body">
         <div class="log-item">
+          <h4>v2.5 存檔寫進 cookie</h4>
+          <ul>
+            <li>按儲存後，配點寫進這台瀏覽器的 cookie。下次打開同一台裝置，會直接看到上次點的技能。</li>
+          </ul>
+        </div>
+        <div class="log-item">
+          <h4>v2.4 存檔改記名字</h4>
+          <ul>
+            <li>拿掉推薦文列表。儲存配點時可輸入名字，這台裝置會記住這份配點，之後能用名字讀回來。</li>
+          </ul>
+        </div>
+        <div class="log-item">
           <h4>v2.3 冒險家技能數值</h4>
           <ul>
             <li>冒險家技能卡改成左右兩欄：左邊是該等級的消耗與數值，右邊是技能說明。皇家騎士團五職業維持原樣。</li>
           </ul>
         </div>
         <div class="log-item">
-          <h4>v2.2 封面與推薦文</h4>
+          <h4>v2.2 封面</h4>
           <ul>
             <li>開啟頁面先看到封面。點進職業後才開始配點，不再預設聖魂劍士。</li>
-            <li>推薦文列表收錄站內配點。按分享會把這份配點公開存到 GitHub，大家都能查看。</li>
             <li>By yeee公會 魯以。全部參考 AfanTAR 大大的內容，若 AfanTAR 大大覺得被冒犯，會立即下架。</li>
           </ul>
           </div>
@@ -2284,9 +2244,6 @@
       factionFilter: 'all',      // 'all' | 'adventurer' | 'cygnus'
       currentJobId: null,
       view: 'cover',
-      boardJob: 'all',
-      boardQuery: '',
-      githubBuilds: [],
       charLevel: 200,
       selectedTier: 'all',       // 'all' | 1 | 2 | 3 | 4
       searchQuery: '',
@@ -2320,13 +2277,11 @@
       dbJsonEditor: document.getElementById('db-json-editor'),
       modalChangelog: document.getElementById('modal-changelog'),
       coverView: document.getElementById('cover-view'),
-      boardView: document.getElementById('board-view'),
       simView: document.getElementById('sim-view'),
-      buildGrid: document.getElementById('build-grid'),
-      boardStatus: document.getElementById('board-status'),
-      boardJobFilter: document.getElementById('board-job-filter'),
-      boardSearch: document.getElementById('board-search'),
-      modalShare: document.getElementById('modal-share')
+      modalSave: document.getElementById('modal-save'),
+      modalLoad: document.getElementById('modal-load'),
+      saveName: document.getElementById('save-name'),
+      saveList: document.getElementById('save-list')
     };
 
     /**
@@ -2748,21 +2703,17 @@
     }
 
     function showView(name) {
-      state.view = name;
-      els.modalShare.classList.add('hidden');
-      els.coverView.classList.toggle('hidden', name !== 'cover');
-      els.boardView.classList.toggle('hidden', name !== 'board');
-      els.simView.classList.toggle('hidden', name !== 'sim');
-      if (name === 'cover') {
+      state.view = name === 'board' ? 'cover' : name;
+      els.modalSave.classList.add('hidden');
+      els.modalLoad.classList.add('hidden');
+      els.coverView.classList.toggle('hidden', state.view !== 'cover');
+      els.simView.classList.toggle('hidden', state.view !== 'sim');
+      if (state.view === 'cover') {
         state.currentJobId = null;
         state.allocated = {};
         document.documentElement.style.setProperty('--emblem-bg-url', 'none');
         els.currentFactionBadge.textContent = '點選職業後開始配點';
         renderJobGrid();
-        return;
-      }
-      if (name === 'board') {
-        renderBoard();
         return;
       }
       renderAll();
@@ -2778,87 +2729,150 @@
       }[ch]));
     }
 
-    function collectPresetBuilds() {
-      const items = [];
-      Object.values(SKILL_DATABASE).forEach((job) => {
-        (job.presets || []).forEach((preset, index) => {
-          items.push({
-            kind: 'preset',
-            jobId: job.id,
-            level: preset.level || job.maxLevel,
-            skills: preset.skills || {},
-            title: `[${job.name}] ${preset.name} (Lv. ${preset.level || job.maxLevel}) - by 魯以`,
-            note: preset.note || '',
-            presetIndex: index
-          });
-        });
-      });
-      return items;
-    }
+    const SAVE_LIST_KEY = 'artale_named_saves';
+    const SAVE_NAME_KEY = 'artale_player_name';
+    const SAVE_COOKIE = 'artale_saves';
+    const SAVE_COOKIE_LIMIT = 3800;
 
-    function visibleBuilds() {
-      const query = state.boardQuery.trim().toLowerCase();
-      return [...state.githubBuilds, ...collectPresetBuilds()].filter((item) => {
-        if (state.boardJob !== 'all' && item.jobId !== state.boardJob) return false;
-        if (!query) return true;
-        return `${item.title} ${item.note}`.toLowerCase().includes(query);
-      });
-    }
-
-    function renderBoard() {
-      const items = visibleBuilds();
-      window.__boardItems = items;
-      if (!items.length) {
-        els.buildGrid.innerHTML = '<div class="empty-skills">沒有符合的推薦文。</div>';
-      } else {
-        els.buildGrid.innerHTML = items.map((item, index) => `
-          <article class="build-card">
-            <div class="build-card-top">
-              <h3>${escapeHtml(item.title)}</h3>
-              <button type="button" class="btn btn-blue" onclick="openBoardItem(${index})">查看配點</button>
-            </div>
-            <p>${escapeHtml(item.note || '這份配點沒有額外說明。')}</p>
-          </article>
-        `).join('');
-      }
-    }
-
-    async function loadGithubBuilds() {
-      els.boardStatus.textContent = '正在讀取 GitHub 上的分享...';
+    function readCookie(name) {
+      const prefix = `${encodeURIComponent(name)}=`;
+      const part = document.cookie.split('; ').find((row) => row.startsWith(prefix));
+      if (!part) return '';
       try {
-        const response = await fetch('https://api.github.com/repos/a90060400/skill/issues?state=open&labels=share&per_page=100', {
-          headers: { Accept: 'application/vnd.github+json' }
-        });
-        if (!response.ok) throw new Error(String(response.status));
-        const issues = await response.json();
-        state.githubBuilds = issues.map((issue) => {
-          const body = issue.body || '';
-          const match = body.match(/<!--\s*artale-build\s*([\s\S]*?)-->/);
-          if (!match) return null;
-          let data;
-          try {
-            data = JSON.parse(match[1].trim());
-          } catch (error) {
-            return null;
-          }
-          if (!data.j || !SKILL_DATABASE[data.j]) return null;
-          return {
-            kind: 'github',
-            jobId: data.j,
-            level: data.l,
-            skills: data.s || {},
-            title: issue.title,
-            note: body.slice(0, match.index).trim()
-          };
-        }).filter(Boolean);
-        els.boardStatus.textContent = state.githubBuilds.length
-          ? `已載入 GitHub 分享 ${state.githubBuilds.length} 篇。送出新分享後，重新開啟列表就能看到。`
-          : 'GitHub 上還沒有分享。站內推薦配點已列在下方，按分享即可公開存到 GitHub。';
+        return decodeURIComponent(part.slice(prefix.length));
       } catch (error) {
-        state.githubBuilds = [];
-        els.boardStatus.textContent = 'GitHub 分享暫時讀不到，先顯示站內推薦配點。';
+        return '';
       }
-      if (state.view === 'board') renderBoard();
+    }
+
+    function writeCookie(name, value, days) {
+      const maxAge = Math.floor(days * 24 * 60 * 60);
+      document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    }
+
+    function clearCookie(name) {
+      document.cookie = `${encodeURIComponent(name)}=; path=/; max-age=0; SameSite=Lax`;
+    }
+
+    function normalizeSave(item) {
+      if (!item || !item.name || !item.jobId || !SKILL_DATABASE[item.jobId]) return null;
+      const allocated = {};
+      Object.entries(item.allocated || {}).forEach(([id, lv]) => {
+        const raw = Math.floor(Number(lv));
+        if (Number.isFinite(raw) && raw > 0) allocated[id] = raw;
+      });
+      return {
+        id: item.id || `${item.jobId}:${item.name}`,
+        name: String(item.name).slice(0, 40),
+        jobId: item.jobId,
+        charLevel: Math.floor(Number(item.charLevel) || SKILL_DATABASE[item.jobId].maxLevel),
+        allocated,
+        savedAt: item.savedAt || ''
+      };
+    }
+
+    function parseSaveList(raw) {
+      try {
+        const parsed = JSON.parse(raw || '[]');
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(normalizeSave).filter(Boolean);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function readNamedSaves() {
+      const fromCookie = parseSaveList(readCookie(SAVE_COOKIE));
+      if (fromCookie.length) return fromCookie;
+      const fromStorage = parseSaveList(localStorage.getItem(SAVE_LIST_KEY));
+      if (fromStorage.length) return fromStorage;
+      const migrated = [];
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith('artale_sim_save_')) continue;
+        const jobId = key.slice('artale_sim_save_'.length);
+        try {
+          const old = JSON.parse(localStorage.getItem(key));
+          const item = normalizeSave({
+            id: key,
+            name: '未命名',
+            jobId,
+            charLevel: old.charLevel,
+            allocated: old.allocated || {},
+            savedAt: old.savedAt || ''
+          });
+          if (item) migrated.push(item);
+        } catch (error) {
+          continue;
+        }
+      }
+      if (migrated.length) writeNamedSaves(migrated);
+      return migrated;
+    }
+
+    function writeNamedSaves(list) {
+      const clean = list.map(normalizeSave).filter(Boolean);
+      localStorage.setItem(SAVE_LIST_KEY, JSON.stringify(clean));
+      let packed = clean;
+      while (packed.length && encodeURIComponent(JSON.stringify(packed)).length > SAVE_COOKIE_LIMIT) {
+        packed = packed.slice(0, -1);
+      }
+      if (packed.length) writeCookie(SAVE_COOKIE, JSON.stringify(packed), 365);
+      else clearCookie(SAVE_COOKIE);
+    }
+
+    function rememberedName() {
+      return readCookie(SAVE_NAME_KEY) || localStorage.getItem(SAVE_NAME_KEY) || '';
+    }
+
+    function rememberName(name) {
+      localStorage.setItem(SAVE_NAME_KEY, name);
+      writeCookie(SAVE_NAME_KEY, name, 365);
+    }
+
+    function applySavedBuild(item, toastText) {
+      const job = SKILL_DATABASE[item.jobId];
+      if (!job) return false;
+      state.currentJobId = item.jobId;
+      state.charLevel = Math.max(10, Math.min(job.maxLevel, Math.floor(Number(item.charLevel) || job.maxLevel)));
+      state.selectedTier = 'all';
+      state.searchQuery = '';
+      if (els.skillSearch) els.skillSearch.value = '';
+      const nextAllocated = {};
+      Object.entries(item.allocated || {}).forEach(([id, lv]) => {
+        const sk = job.skills.find((s) => s.id === id);
+        if (!sk) return;
+        const raw = Math.floor(Number(lv));
+        if (!Number.isFinite(raw) || raw <= 0) return;
+        nextAllocated[id] = Math.min(sk.maxLv, raw);
+      });
+      state.allocated = nextAllocated;
+      state.view = 'sim';
+      if (els.presetNoteBanner) els.presetNoteBanner.classList.add('hidden');
+      if (toastText) showToast(toastText, 'success');
+      return true;
+    }
+
+    function renderSaveList() {
+      const list = readNamedSaves();
+      window.__namedSaves = list;
+      if (!list.length) {
+        els.saveList.innerHTML = '<div class="empty-skills">還沒有存檔。先按儲存配點，並填上名字。</div>';
+        return;
+      }
+      els.saveList.innerHTML = list.map((item, index) => {
+        const job = SKILL_DATABASE[item.jobId];
+        return `<article class="save-row">
+          <div>
+            <h3>${escapeHtml(item.name)}</h3>
+            <p>${escapeHtml(job.name)} · Lv.${escapeHtml(item.charLevel)} · ${escapeHtml(item.savedAt || '')}</p>
+          </div>
+          <div class="save-row-actions">
+            <button type="button" class="btn btn-blue" onclick="loadNamedSave(${index})">讀取</button>
+            <button type="button" class="btn btn-red" onclick="deleteNamedSave(${index})">刪除</button>
+          </div>
+        </article>`;
+      }).join('');
     }
 
     function currentBuildPayload() {
@@ -2906,27 +2920,20 @@
       showView('sim');
     };
 
-    window.openBoardItem = function(index) {
-      const item = (window.__boardItems || [])[index];
-      if (!item || !SKILL_DATABASE[item.jobId]) return;
-      const job = SKILL_DATABASE[item.jobId];
-      state.currentJobId = item.jobId;
-      state.charLevel = Math.max(10, Math.min(job.maxLevel, Math.floor(Number(item.level) || job.maxLevel)));
-      state.selectedTier = 'all';
-      state.searchQuery = '';
-      els.skillSearch.value = '';
-      const nextAllocated = {};
-      Object.entries(item.skills || {}).forEach(([id, lv]) => {
-        const sk = job.skills.find(s => s.id === id);
-        if (!sk) return;
-        const raw = Math.floor(Number(lv));
-        if (!Number.isFinite(raw) || raw <= 0) return;
-        nextAllocated[id] = Math.min(sk.maxLv, raw);
-      });
-      state.allocated = nextAllocated;
-      els.presetNoteBanner.classList.add('hidden');
+    window.loadNamedSave = function(index) {
+      const item = (window.__namedSaves || [])[index];
+      if (!item || !applySavedBuild(item, `已讀取「${item.name}」的${SKILL_DATABASE[item.jobId].name}配點。`)) return;
       showView('sim');
-      showToast(`已載入「${item.title}」`, 'success');
+    };
+
+    window.deleteNamedSave = function(index) {
+      const item = (window.__namedSaves || [])[index];
+      if (!item) return;
+      const list = readNamedSaves().filter((row) => row.id !== item.id);
+      writeNamedSaves(list);
+      if (item.legacyKey) localStorage.removeItem(item.legacyKey);
+      renderSaveList();
+      showToast(`已刪除「${item.name}」的存檔。`, 'info');
     };
 
     window.selectTier = function(tier) {
@@ -3008,88 +3015,51 @@
       renderSkills();
     });
 
-    document.getElementById('btn-open-board').addEventListener('click', () => {
-      showView('board');
-      loadGithubBuilds();
-    });
-    document.getElementById('btn-open-board-sim').addEventListener('click', () => {
-      showView('board');
-      loadGithubBuilds();
-    });
-    document.getElementById('btn-board-back').addEventListener('click', () => showView('cover'));
     document.getElementById('btn-back-cover').addEventListener('click', () => showView('cover'));
-    els.boardJobFilter.addEventListener('change', () => {
-      state.boardJob = els.boardJobFilter.value;
-      renderBoard();
-    });
-    els.boardSearch.addEventListener('input', () => {
-      state.boardQuery = els.boardSearch.value;
-      renderBoard();
-    });
 
-    document.getElementById('share-form').addEventListener('submit', (event) => {
+    document.getElementById('save-form').addEventListener('submit', (event) => {
       event.preventDefault();
-      document.getElementById('btn-publish-share').click();
+      document.getElementById('btn-confirm-save').click();
     });
     document.getElementById('btn-share').addEventListener('click', () => {
       if (!state.currentJobId) return;
-      document.getElementById('share-title').value = '';
-      document.getElementById('share-author').value = '';
-      document.getElementById('share-note').value = '';
-      els.modalShare.classList.remove('hidden');
-    });
-    document.getElementById('btn-close-share').addEventListener('click', () => els.modalShare.classList.add('hidden'));
-    document.getElementById('btn-copy-share').addEventListener('click', () => {
       const shareUrl = shareUrlFor(currentBuildPayload());
       window.location.hash = shareUrl.slice(shareUrl.indexOf('#'));
       showToast(copyText(shareUrl) ? '配點連結已複製。' : '請直接複製網址列的連結。', 'success');
     });
-    document.getElementById('btn-publish-share').addEventListener('click', () => {
-      const job = SKILL_DATABASE[state.currentJobId];
-      const titleText = document.getElementById('share-title').value.trim();
-      const author = document.getElementById('share-author').value.trim();
-      const note = document.getElementById('share-note').value.trim();
-      if (!titleText || !author) {
-        showToast('請先填標題和作者。', 'warning');
+    document.getElementById('btn-close-save').addEventListener('click', () => els.modalSave.classList.add('hidden'));
+    document.getElementById('btn-close-load').addEventListener('click', () => els.modalLoad.classList.add('hidden'));
+    document.getElementById('btn-confirm-save').addEventListener('click', () => {
+      const name = els.saveName.value.trim();
+      if (!name || !state.currentJobId) {
+        showToast('請先輸入名字。', 'warning');
         return;
       }
-      const payload = currentBuildPayload();
-      const issueTitle = `[${job.name}] ${titleText} (Lv. ${state.charLevel}) - by ${author}`;
-      const issueBody = `${note}\n\n<!-- artale-build\n${JSON.stringify(payload)}\n-->`;
-      const url = `https://github.com/a90060400/skill/issues/new?labels=share&title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
-      window.open(url, '_blank', 'noopener');
-      els.modalShare.classList.add('hidden');
-      showToast('已開啟 GitHub。送出之後，這篇就會出現在推薦文列表。', 'success');
+      rememberName(name);
+      const list = readNamedSaves().filter((item) => !(item.name === name && item.jobId === state.currentJobId));
+      list.unshift({
+        id: `${state.currentJobId}:${name}`,
+        name,
+        jobId: state.currentJobId,
+        charLevel: state.charLevel,
+        allocated: { ...state.allocated },
+        savedAt: new Date().toLocaleString()
+      });
+      writeNamedSaves(list);
+      els.modalSave.classList.add('hidden');
+      showToast(`已把「${name}」的配點寫進這台瀏覽器。下次打開會直接看到。`, 'success');
     });
 
-    // LocalStorage 儲存與讀取自訂配點
     document.getElementById('btn-save-local').addEventListener('click', () => {
-      const key = `artale_sim_save_${state.currentJobId}`;
-      const data = {
-        charLevel: state.charLevel,
-        allocated: state.allocated,
-        savedAt: new Date().toLocaleString()
-      };
-      localStorage.setItem(key, JSON.stringify(data));
-      showToast(`已儲存「${SKILL_DATABASE[state.currentJobId].name}」的個人配點！`, 'success');
+      if (!state.currentJobId) return;
+      els.saveName.value = rememberedName();
+      els.modalSave.classList.remove('hidden');
+      els.saveName.focus();
     });
 
     document.getElementById('btn-load-local').addEventListener('click', () => {
-      const key = `artale_sim_save_${state.currentJobId}`;
-      const raw = localStorage.getItem(key);
-      if (!raw) {
-        showToast('目前職業尚無本地儲存紀錄！', 'warning');
-        return;
-      }
-      try {
-        const data = JSON.parse(raw);
-        state.charLevel = data.charLevel;
-        state.allocated = data.allocated || {};
-        renderAll();
-        showToast(`已讀取存檔（儲存時間：${data.savedAt}）`, 'success');
-      } catch (e) {
-        showToast('讀取存檔失敗，資料格式異常。', 'error');
-      }
+      renderSaveList();
+      els.modalLoad.classList.remove('hidden');
     });
 
     // 技能資料庫 JSON 檢視與測試編輯器
@@ -3170,22 +3140,20 @@
           console.warn('無法解析分享網址參數', e);
         }
       }
-      if (hash === '#board') state.view = 'board';
     }
 
-    function fillBoardJobs() {
-      const options = Object.values(SKILL_DATABASE).map((job) => (
-        `<option value="${job.id}">${escapeHtml(job.name)}</option>`
-      )).join('');
-      els.boardJobFilter.insertAdjacentHTML('beforeend', options);
+    function restoreCookieSave() {
+      if (state.view === 'sim' && state.currentJobId) return;
+      const latest = readNamedSaves()[0];
+      if (!latest) return;
+      const job = SKILL_DATABASE[latest.jobId];
+      applySavedBuild(latest, `已回到「${latest.name}」上次儲存的${job.name}配點。`);
     }
 
-    // 初始化渲染
     window.addEventListener('DOMContentLoaded', () => {
-      fillBoardJobs();
       loadFromUrlHash();
+      restoreCookieSave();
       showView(state.view);
-      if (state.view === 'board') loadGithubBuilds();
     });
   </script>
 </body>
