@@ -16,7 +16,6 @@
       --line: #bcaaa4;
       --paper: rgba(252, 242, 223, 0.62);
       --card: rgba(255, 255, 255, 0.65);
-      --asset: https://jamox80.github.io/maplestory-skill-simulator;
     }
     * { box-sizing: border-box; }
     .hidden { display: none !important; }
@@ -29,9 +28,9 @@
       line-height: 1.6;
       background-color: #f0e6d6;
       background-image:
-        url("https://jamox80.github.io/maplestory-skill-simulator/ui/parchment_texture-top.png"),
-        url("https://jamox80.github.io/maplestory-skill-simulator/ui/parchment_texture-bottom.png"),
-        url("https://jamox80.github.io/maplestory-skill-simulator/ui/parchment_texture-middle.png");
+        url("ui/parchment_texture-top.png"),
+        url("ui/parchment_texture-bottom.png"),
+        url("ui/parchment_texture-middle.png");
       background-repeat: no-repeat, no-repeat, repeat-y;
       background-position: center top, center bottom, center top;
       background-size: 100% auto, 100% auto, 100% auto;
@@ -625,7 +624,7 @@
 
   <div class="page-wrap">
     <h1 class="site-title">
-      <img src="https://jamox80.github.io/maplestory-skill-simulator/ui/title-icon.png" alt="">
+      <img src="ui/title-icon.png" alt="">
       <span>Artale技能模擬器</span>
     </h1>
 
@@ -773,6 +772,12 @@
         <button id="btn-close-changelog" class="icon-x" type="button">✕</button>
       </div>
       <div class="modal-body">
+        <div class="log-item">
+          <h4>v2.7 圖示改放自己站上</h4>
+          <ul>
+            <li>冒險家職業圖、技能圖和羊皮紙背景不再連到外部網站，改由這個頁面自己提供。</li>
+          </ul>
+        </div>
         <div class="log-item">
           <h4>v2.6 補回冒險家原有技能</h4>
           <ul>
@@ -1890,7 +1895,7 @@
      * 應用程式狀態管理 (State)
      * ============================================================================
      */
-    const EMBLEM_BASE = 'https://jamox80.github.io/maplestory-skill-simulator/emblems/';
+    const EMBLEM_BASE = 'icons/emblems/';
     const JOB_EMBLEMS = {
       bishop: 'Bishop_color.png',
       arch_mage_fp: 'archmage_fp_color.png',
@@ -1922,7 +1927,6 @@
       return `<span class="job-emoji">${job.icon}</span>`;
     }
 
-    const SKILL_ICON_BASE = "https://jamox80.github.io/maplestory-skill-simulator/";
     const SKILL_ICONS = {
       dw_hp_rec: 'icons/soulmaster/dw_hp_rec.png',
       dw_hp_boost: 'icons/soulmaster/dw_hp_boost.png',
@@ -2359,7 +2363,7 @@
     function skillIconHtml(sk) {
       const file = SKILL_ICONS[sk.id];
       if (!file) return `<span class="skill-icon skill-icon-fallback">${sk.icon}</span>`;
-      const src = file.startsWith('icons/') || file.startsWith('http') ? file : `${SKILL_ICON_BASE}${file}`;
+      const src = file;
       return `<img class="skill-icon" src="${src}" alt="">`;
     }
 
